@@ -15,7 +15,6 @@ find_package(rclcpp REQUIRED)
 find_package(trajectory_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
-find_package(controller_manager REQUIRED)
 find_package(humanoid_interfaces REQUIRED)
 find_package(humanoid_infrastructure REQUIRED)
 

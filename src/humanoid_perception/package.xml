@@ -17,6 +17,7 @@
   <depend>message_filters</depend>
   <depend>humanoid_interfaces</depend>
   <depend>humanoid_infrastructure</depend>
+  <depend>libopencv-dev</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

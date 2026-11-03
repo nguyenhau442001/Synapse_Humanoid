@@ -1,4 +1,5 @@
 #include "humanoid_perception/camera_subscriber_node.hpp"
+#include <sensor_msgs/image_encodings.hpp>
 #include <opencv2/opencv.hpp>
 
 namespace humanoid_perception

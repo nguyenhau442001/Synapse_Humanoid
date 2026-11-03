@@ -34,7 +34,12 @@ jobs:
       - name: Build
         run: |
           source /opt/ros/jazzy/setup.bash
-          colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release --event-handlers console_cohesion+
+          colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release || {
+            echo "==================== BUILD FAILED: PRINTING ERROR LOGS ===================="
+            find log/latest_build -name "stderr.log" -exec echo "--- {} ---" \; -exec cat {} \;
+            find log/latest_build -name "stdout_stderr.log" -exec echo "--- {} ---" \; -exec cat {} \;
+            exit 1
+          }
         env:
           COLCON_EXTENSION_BLACKLIST: colcon_notification
 
