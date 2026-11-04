@@ -83,14 +83,23 @@ success "Linux machine '$ORB_MACHINE_NAME' is ready."
 
 # ── 5. Provision ROS 2 Jazzy Inside the Linux Machine ────────────────────────
 step "5. Provisioning ROS 2 Jazzy & Build Dependencies Inside '$ORB_MACHINE_NAME'"
-MAC_REPO_PATH="/mac$SCRIPT_DIR"
 
 info "Executing setup_ubuntu.sh inside the container..."
 orb -m "$ORB_MACHINE_NAME" bash -c "
-  if [ -f '$MAC_REPO_PATH/setup_ubuntu.sh' ]; then
-    bash '$MAC_REPO_PATH/setup_ubuntu.sh'
+  TARGET_PATH=''
+  if [ -f '$SCRIPT_DIR/setup_ubuntu.sh' ]; then
+    TARGET_PATH='$SCRIPT_DIR'
+  elif [ -f '/mnt/mac$SCRIPT_DIR/setup_ubuntu.sh' ]; then
+    TARGET_PATH='/mnt/mac$SCRIPT_DIR'
+  elif [ -f '/mac$SCRIPT_DIR/setup_ubuntu.sh' ]; then
+    TARGET_PATH='/mac$SCRIPT_DIR'
+  fi
+
+  if [ -n \"\$TARGET_PATH\" ]; then
+    echo \"Found workspace at: \$TARGET_PATH\"
+    bash \"\$TARGET_PATH/setup_ubuntu.sh\"
   else
-    echo 'Error: Could not locate $MAC_REPO_PATH/setup_ubuntu.sh'
+    echo 'Error: Could not locate setup_ubuntu.sh in OrbStack mount points!'
     exit 1
   fi
 "
@@ -102,7 +111,7 @@ step "6. Performing Verification Build via OrbStack"
 info "Building Synapse Humanoid packages inside Linux..."
 orb -m "$ORB_MACHINE_NAME" bash -c "
   source /opt/ros/jazzy/setup.bash
-  cd '$MAC_REPO_PATH'
+  cd '$SCRIPT_DIR' || cd '/mnt/mac$SCRIPT_DIR'
   colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
 "
 
@@ -115,8 +124,8 @@ echo -e "  1. ${BLUE}Enter Linux Terminal:${RESET}"
 echo -e "     orb -m $ORB_MACHINE_NAME"
 echo ""
 echo -e "  2. ${BLUE}Build directly from your macOS terminal:${RESET}"
-echo -e "     orb -m $ORB_MACHINE_NAME bash -c \"source /opt/ros/jazzy/setup.bash && cd /mac\$PWD && colcon build --symlink-install\""
+echo -e "     orb -m $ORB_MACHINE_NAME bash -c \"source /opt/ros/jazzy/setup.bash && cd \$PWD && colcon build --symlink-install\""
 echo ""
 echo -e "  3. ${BLUE}Add convenient alias to ~/.zshrc (Optional):${RESET}"
-echo -e "     alias orb-build='orb -m $ORB_MACHINE_NAME bash -c \"source /opt/ros/jazzy/setup.bash && cd /mac\\\$PWD && colcon build --symlink-install\"'"
+echo -e "     alias orb-build='orb -m $ORB_MACHINE_NAME bash -c \"source /opt/ros/jazzy/setup.bash && cd \\\$PWD && colcon build --symlink-install\"'"
 echo ""

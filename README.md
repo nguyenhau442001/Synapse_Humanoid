@@ -107,7 +107,7 @@ OrbStack provides an ultra-fast, lightweight Ubuntu 24.04 environment on Apple S
      ```
    - **Or build directly from your macOS terminal:**
      ```bash
-     orb -m synapse-humanoid bash -c "source /opt/ros/jazzy/setup.bash && cd /mac\$PWD && colcon build --symlink-install"
+     orb -m synapse-humanoid bash -c "source /opt/ros/jazzy/setup.bash && cd \$PWD && colcon build --symlink-install"
      ```
 
 ---
