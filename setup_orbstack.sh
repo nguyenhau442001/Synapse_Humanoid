@@ -50,8 +50,19 @@ fi
 
 success "OrbStack is installed: $(orb version 2>/dev/null || echo 'ready')"
 
-# ── 3. Ensure OrbStack Daemon is Running ──────────────────────────────────────
-step "3. Verifying OrbStack Daemon Status"
+# ── 3. Check / Install Foxglove Studio on macOS ──────────────────────────────
+step "3. Checking Foxglove Studio (Native macOS 3D Visualizer)"
+if [ -d "/Applications/Foxglove Studio.app" ] || command -v foxglove-studio &> /dev/null; then
+  success "Foxglove Studio is already installed on macOS."
+elif command -v brew &> /dev/null; then
+  info "Installing Foxglove Studio via Homebrew Cask..."
+  brew install --cask foxglove-studio || warn "Could not install Foxglove automatically. You can install it manually from https://foxglove.dev"
+else
+  info "Tip: Download Foxglove Studio from https://foxglove.dev for native Apple Silicon 3D visualization."
+fi
+
+# ── 4. Ensure OrbStack Daemon is Running ──────────────────────────────────────
+step "4. Verifying OrbStack Daemon Status"
 if ! orb status &> /dev/null; then
   info "Starting OrbStack application..."
   open -a OrbStack || true
@@ -106,8 +117,8 @@ orb -m "$ORB_MACHINE_NAME" bash -c "
 
 success "Provisioning completed inside '$ORB_MACHINE_NAME'."
 
-# ── 6. Test Build Synapse Humanoid ───────────────────────────────────────────
-step "6. Performing Verification Build via OrbStack"
+# ── 7. Test Build Synapse Humanoid ───────────────────────────────────────────
+step "7. Performing Verification Build via OrbStack"
 info "Building Synapse Humanoid packages inside Linux..."
 orb -m "$ORB_MACHINE_NAME" bash -c "
   source /opt/ros/jazzy/setup.bash
@@ -115,7 +126,7 @@ orb -m "$ORB_MACHINE_NAME" bash -c "
   colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
 "
 
-# ── 7. Summary & Quick Usage ─────────────────────────────────────────────────
+# ── 8. Summary & Quick Usage ─────────────────────────────────────────────────
 step "🎉 Setup Complete!"
 echo -e "${GREEN}OrbStack Linux development environment is fully operational.${RESET}"
 echo ""
@@ -126,6 +137,11 @@ echo ""
 echo -e "  2. ${BLUE}Build directly from your macOS terminal:${RESET}"
 echo -e "     orb -m $ORB_MACHINE_NAME bash -c \"source /opt/ros/jazzy/setup.bash && cd \$PWD && colcon build --symlink-install\""
 echo ""
-echo -e "  3. ${BLUE}Add convenient alias to ~/.zshrc (Optional):${RESET}"
+echo -e "  3. ${BLUE}High-Performance 3D Visualization via Foxglove Studio (Native macOS):${RESET}"
+echo -e "     - In Terminal (OrbStack):"
+echo -e "       orb -m $ORB_MACHINE_NAME bash -c \"source /opt/ros/jazzy/setup.bash && source \$PWD/install/setup.bash && ros2 launch humanoid_description foxglove.launch.py\""
+echo -e "     - On macOS: Open 'Foxglove Studio' -> Open connection -> 'ws://localhost:8765' -> Connect"
+echo ""
+echo -e "  4. ${BLUE}Add convenient alias to ~/.zshrc (Optional):${RESET}"
 echo -e "     alias orb-build='orb -m $ORB_MACHINE_NAME bash -c \"source /opt/ros/jazzy/setup.bash && cd \\\$PWD && colcon build --symlink-install\"'"
 echo ""

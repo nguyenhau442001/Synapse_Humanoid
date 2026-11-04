@@ -67,6 +67,7 @@ sudo apt-get install -y \
   ros-jazzy-joint-state-publisher-gui \
   ros-jazzy-xacro \
   ros-jazzy-rviz2 \
+  ros-jazzy-foxglove-bridge \
   build-essential \
   cmake \
   git \

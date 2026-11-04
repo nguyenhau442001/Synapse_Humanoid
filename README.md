@@ -131,8 +131,16 @@ OrbStack provides an ultra-fast, lightweight Ubuntu 24.04 environment on Apple S
 
 ### 🎯 Bringup Commands
 
-#### 1. Launch Robot Visualization (RViz2)
-Inspect the humanoid kinematic model and interact with joint limit sliders:
+#### 1. High-Performance 3D Visualization via Foxglove Studio (Recommended for macOS)
+Enjoy native Apple Silicon GPU Metal rendering (60–120 FPS ProMotion, zero VM lag, ultra-low battery drain):
+```bash
+# Inside OrbStack Linux:
+ros2 launch humanoid_description foxglove.launch.py
+```
+Then on macOS: Open **Foxglove Studio** -> Click **Open connection** -> Enter `ws://localhost:8765` -> Click **Connect**.
+
+#### 2. Launch Robot Visualization in RViz2 (Standard X11)
+Inspect the humanoid kinematic model and interact with joint limit sliders in RViz2:
 ```bash
 ros2 launch humanoid_description display.launch.py
 ```
