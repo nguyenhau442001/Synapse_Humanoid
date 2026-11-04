@@ -20,6 +20,16 @@ struct BoundingBox3D
   geometry_msgs::msg::Vector3 size;
 };
 
+struct PerceptionConfig
+{
+  std::string model_path = "models/yolov8_humanoid.onnx";
+  int input_width = 640;
+  int input_height = 640;
+  float confidence_threshold = 0.45f;
+  float nms_threshold = 0.50f;
+  bool use_cuda = true;
+};
+
 /**
  * @brief Real-time AI Inference Pipeline abstraction.
  * @details Handles vision preprocessing (letterboxing, color normalization),
@@ -29,17 +39,14 @@ struct BoundingBox3D
 class OnnxInferencePipeline
 {
 public:
-  struct Config
-  {
-    std::string model_path = "models/yolov8_humanoid.onnx";
-    int input_width = 640;
-    int input_height = 640;
-    float confidence_threshold = 0.45f;
-    float nms_threshold = 0.50f;
-    bool use_cuda = true;
-  };
+  using Config = PerceptionConfig;
 
-  explicit OnnxInferencePipeline(const Config & config = Config())
+  OnnxInferencePipeline()
+  : config_{}
+  {
+  }
+
+  explicit OnnxInferencePipeline(const Config & config)
   : config_(config)
   {
   }
