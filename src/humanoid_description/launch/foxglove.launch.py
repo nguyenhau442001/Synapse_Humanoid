@@ -40,6 +40,13 @@ def generate_launch_description():
             output='screen'
         ),
         Node(
+            package='humanoid_description',
+            executable='robot_description_publisher.py',
+            name='robot_description_publisher',
+            output='screen',
+            parameters=[{'robot_description': robot_description_content}]
+        ),
+        Node(
             package='foxglove_bridge',
             executable='foxglove_bridge',
             name='foxglove_bridge',
