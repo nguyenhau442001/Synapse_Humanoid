@@ -86,49 +86,65 @@ The Synapse Humanoid model specifies 20+ active actuated joints:
 
 ---
 
-## 🚀 Quickstart Guide
+## 🚀 Quickstart & Development Setup
 
-### 1. Prerequisites
-- **ROS 2 Jazzy** on Ubuntu 24.04 LTS or macOS (RoboStack)
-- Standard build tools: `colcon`, `rosdep`, `git`, `cmake`
+We provide streamlined automated setup scripts tailored for both **macOS (via OrbStack)** and **Native Ubuntu 24.04 LTS**.
 
-### 2. Workspace Setup & Build
+### 🍎 Option A: macOS via OrbStack (Recommended)
+OrbStack provides an ultra-fast, lightweight Ubuntu 24.04 environment on Apple Silicon without the heavy overhead and battery drain of traditional VMs (like UTM). Your macOS workspace directory is mounted with native SSD I/O speeds.
 
-```bash
-# Clone the repository
-git clone https://github.com/nguyenhau442001/Synapse_Humanoid.git synapse_ws/src/synapse-humanoid
-cd synapse_ws
+1. **Run the Automated Setup Script on macOS:**
+   ```bash
+   chmod +x setup_orbstack.sh
+   ./setup_orbstack.sh
+   ```
+   *This automatically installs OrbStack, launches a clean `ubuntu:noble` instance named `synapse-humanoid`, provisions ROS 2 Jazzy + dependencies, and performs an initial verification build.*
 
-# Install dependencies via rosdep
-source /opt/ros/jazzy/setup.bash
-rosdep update
-rosdep install --from-paths src --ignore-src --rosdistro jazzy -y
+2. **Daily Development Workflow:**
+   - **Enter Linux Terminal:**
+     ```bash
+     orb -m synapse-humanoid
+     ```
+   - **Or build directly from your macOS terminal:**
+     ```bash
+     orb -m synapse-humanoid bash -c "source /opt/ros/jazzy/setup.bash && cd /mac\$PWD && colcon build --symlink-install"
+     ```
 
-# Compile the humanoid packages
-colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
-source install/setup.bash
-```
+---
 
-### 3. Launching Robot Visualization (RViz2)
+### 🐧 Option B: Native Ubuntu 24.04 LTS (Robot IPC / Workstation)
 
-Inspect the humanoid kinematics and exercise joint limits via interactive sliders:
+1. **Run the Automated Setup Script on Ubuntu:**
+   ```bash
+   chmod +x setup_ubuntu.sh
+   ./setup_ubuntu.sh
+   ```
 
+2. **Build Workspace:**
+   ```bash
+   source /opt/ros/jazzy/setup.bash
+   colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release
+   source install/setup.bash
+   ```
+
+---
+
+### 🎯 Bringup Commands
+
+#### 1. Launch Robot Visualization (RViz2)
+Inspect the humanoid kinematic model and interact with joint limit sliders:
 ```bash
 ros2 launch humanoid_description display.launch.py
 ```
 
-### 4. Running the Real-Time Perception Pipeline
-
-Launch the RGB-D camera subscriber and ONNX Runtime inference node:
-
+#### 2. Launch Real-Time Perception Pipeline
+Launch the RGB-D camera subscriber and ONNX Runtime / TensorRT inference pipeline:
 ```bash
 ros2 launch humanoid_perception perception.launch.py
 ```
 
-### 5. Launching the Joint Control Stack
-
-Bring up the `ros2_control` controller manager and joint trajectory bridges:
-
+#### 3. Launch Joint Trajectory Controllers (`ros2_control`)
+Bring up the controller manager and joint trajectory bridges:
 ```bash
 ros2 launch humanoid_control humanoid_control.launch.py
 ```
