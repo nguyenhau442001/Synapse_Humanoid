@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Mini Humanoid – mặt bên</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#2F6FEB}a:hover{color:#1E4FB8}
+</style>
+</helmet>
+<div style="width: 640px; height: 1180px; box-sizing: border-box; padding: 48px 40px; background: #EEF1F5; display: flex; flex-direction: column; align-items: center; gap: 12px; font-family: Inter, system-ui, sans-serif; color: #1B1E24">
+<div style="display: flex; flex-direction: column; align-items: center; gap: 6px">
+<p style="margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.12em; color: #4A515C">MẶT BÊN · NHÌN SANG PHẢI</p>
+<h2 style="margin: 0; font-family: 'Space Grotesk', Inter, sans-serif; font-size: 40px; font-weight: 700">Dáng đứng</h2>
+<p style="margin: 0; font-size: 17px; color: #4A515C">Trọng tâm cao 146 mm, nằm ngay trên hông</p>
+</div>
+<svg viewBox="-70 0 140 340" width="350" height="850" role="img" aria-label="Robot humanoid mini nhìn từ bên phải: đầu tròn, kính mặt cong ra trước, thân bụng tròn, tay buông dọc thân, bàn chân dài hướng về trước">
+<line x1="-60" x2="60" y1="330" y2="330" stroke="#B9BEC6" stroke-width="0.8"></line>
+<ellipse cx="10" cy="330" rx="40" ry="3" fill="#1B1E24" fill-opacity="0.08"></ellipse>
+<rect x="-26" y="319" width="72" height="11" rx="6" fill="{{shell}}" stroke="#B9BEC6" stroke-width="0.8"></rect>
+<rect x="-13" y="296" width="26" height="24" rx="9" fill="#DDE1E6" stroke="#B9BEC6" stroke-width="0.8"></rect>
+<rect x="-12" y="262" width="24" height="38" rx="12" fill="{{shell}}" stroke="#B9BEC6" stroke-width="0.8"></rect>
+<rect x="-14" y="216" width="28" height="40" rx="14" fill="{{shell}}" stroke="#B9BEC6" stroke-width="0.8"></rect>
+<circle cx="0" cy="259" r="10" fill="#DDE1E6" stroke="#B9BEC6" stroke-width="0.8"></circle>
+<rect x="-22" y="172" width="44" height="50" rx="16" fill="#DDE1E6" stroke="#B9BEC6" stroke-width="0.8"></rect>
+<rect x="-8" y="90" width="16" height="14" rx="5" fill="#DDE1E6" stroke="#B9BEC6" stroke-width="0.8"></rect>
+<path d="M -22 104 C -27 125 -26 162 -21 178 L 20 178 C 29 162 30 125 22 104 Q 0 99 -22 104 Z" fill="{{shell}}" stroke="#B9BEC6" stroke-width="0.8"></path>
+<line x1="-4" x2="-4" y1="27" y2="18" stroke="#9AA3AF" stroke-width="1.2" stroke-linecap="round"></line>
+<circle cx="-4" cy="15" r="4.5" fill="#FF8A3D"></circle>
+<rect x="-29" y="27" width="62" height="64" rx="28" fill="{{shell}}" stroke="#B9BEC6" stroke-width="0.8"></rect>
+<ellipse cx="-10" cy="37" rx="10" ry="4" fill="#FFFFFF" fill-opacity="0.85"></ellipse>
+<path d="M 31 41 Q 37.5 58 31 75" fill="none" stroke="#1B1E24" stroke-width="5" stroke-linecap="round"></path>
+<path d="M 34 52 Q 35.6 57 34.4 63" fill="none" stroke="{{eye}}" stroke-width="2" stroke-linecap="round"></path>
+<ellipse cx="25" cy="82" rx="3" ry="2.4" fill="#FFB3A7"></ellipse>
+<circle cx="0" cy="59" r="8" fill="#DDE1E6" stroke="#B9BEC6" stroke-width="0.8"></circle>
+<circle cx="0" cy="116" r="12" fill="#DDE1E6" stroke="#B9BEC6" stroke-width="0.8"></circle>
+<rect x="-8" y="122" width="16" height="34" rx="8" fill="{{shell}}" stroke="#B9BEC6" stroke-width="0.8"></rect>
+<rect x="-8" y="166" width="16" height="38" rx="8" fill="{{shell}}" stroke="#B9BEC6" stroke-width="0.8"></rect>
+<circle cx="0" cy="164" r="7" fill="#DDE1E6" stroke="#B9BEC6" stroke-width="0.8"></circle>
+<circle cx="0" cy="212" r="10" fill="{{shell}}" stroke="#B9BEC6" stroke-width="0.8"></circle>
+<circle cx="-1" cy="184" r="3.2" fill="none" stroke="#1B1E24" stroke-width="0.9"></circle>
+<path d="M -5 184 H 3 M -1 180 V 188" stroke="#1B1E24" stroke-width="0.9"></path>
+</svg>
+<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; font-size: 14px; color: #2B313A">
+<span style="padding: 6px 12px; border-radius: 999px; background: #FFFFFF; border: 1px solid #D5DAE1">⊕ Trọng tâm 146 mm</span>
+<span style="padding: 6px 12px; border-radius: 999px; background: #FFFFFF; border: 1px solid #D5DAE1">Thân sâu 48 mm</span>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"shell":{"editor":"color","default":"#FBFBFA","options":["#FBFBFA","#F3EFE6","#E9F0F7","#FCE9E2"]},"eye":{"editor":"color","default":"#5BC8F5","options":["#5BC8F5","#7CE0A6","#FFC857","#FF8FB1"]},"$preview":{"width":640,"height":1180}}'>
+class Component extends DCLogic {
+renderVals() {
+return { shell: this.props.shell ?? '#FBFBFA', eye: this.props.eye ?? '#5BC8F5' };
+}
+}
+</script>
+</body>
+</html>
