@@ -17,20 +17,17 @@ from pathlib import Path
 # Stall torque (N.m) is the hard limit given to the simulator.
 # Firmware should keep continuous load below ~1/3 of stall.
 SERVOS = {
-    # heavy joints: hip roll/pitch, knee, ankle pitch/roll
-    "DS843MG": dict(stall=0.471, speed=0.10, mass=8.5, size=(23, 9, 23)),     # Corona, 4.8 kg.cm @6V, metal gear
+    # heavy joints: hip roll/pitch, knee, ankle pitch/roll (sold in HCMC, Hshop / icdayroi)
+    "MG92B": dict(stall=0.343, speed=0.08, mass=14.0, size=(22.8, 12, 31)),   # TowerPro, 3.5 kg.cm @6V, metal gear
     # medium: hip yaw, shoulder pitch (metal gears survive falls)
     "MG90S": dict(stall=0.216, speed=0.08, mass=13.4, size=(22.8, 12.2, 28.5)),  # 2.2 kg.cm
     # light: shoulder roll, elbow, head
     "SG90": dict(stall=0.177, speed=0.10, mass=9.0, size=(23, 12.2, 29)),      # 1.8 kg.cm @4.8V, plastic gear
-    # previous leg servo, kept for comparison runs
-    "MG92B": dict(stall=0.343, speed=0.08, mass=14.0, size=(22.8, 12, 31)),   # 3.5 kg.cm @6V
+    # stronger import-only option, kept for comparison runs (LEG_HEAVY=DS843MG)
+    "DS843MG": dict(stall=0.471, speed=0.10, mass=8.5, size=(23, 9, 23)),     # Corona, 4.8 kg.cm @6V
 }
-LEG_HEAVY = "DS843MG"
-# Optional cheaper mix: set VARIANT=mix to keep MG92B on the less-loaded leg joints.
+LEG_HEAVY = os.environ.get("LEG_HEAVY", "MG92B")
 LEG_SERVO = {}
-if os.environ.get("VARIANT") == "mix":
-    LEG_SERVO = {"hip_pitch": "MG92B", "ankle_pitch": "MG92B", "ankle_roll": "MG92B"}
 KP = 8.0          # position gain, N.m/rad (stiffness of a hobby servo, tune vs. real)
 DAMPING = 0.02    # joint damping, N.m.s/rad
 ARMATURE = 5e-4   # reflected rotor inertia through the gearbox, kg.m^2

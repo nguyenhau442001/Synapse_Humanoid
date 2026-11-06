@@ -37,21 +37,21 @@
         <geom class="part" name="l_hip_yaw_servo" type="box" size="0.0061 0.0143 0.0114" pos="0.0000 0.0000 0.0220" mass="0.0134" rgba="0.3 0.36 0.52 1"/>
         <body name="l_hip_roll" pos="0.0000 0.0000 0.0000">
           <joint name="l_hip_roll" axis="1 0 0" range="-25 25"/>
-          <geom class="part" name="l_hip_roll_servo" type="box" size="0.0045 0.0115 0.0115" pos="-0.0140 0.0000 0.0000" mass="0.0085" rgba="0.36 0.56 0.9 1"/>
+          <geom class="part" name="l_hip_roll_servo" type="box" size="0.0060 0.0114 0.0155" pos="-0.0140 0.0000 0.0000" mass="0.0140" rgba="0.36 0.56 0.9 1"/>
           <body name="l_hip_pitch" pos="0.0000 0.0000 0.0000">
             <joint name="l_hip_pitch" axis="0 1 0" range="-90 45"/>
-            <geom class="part" name="l_hip_pitch_servo" type="box" size="0.0115 0.0045 0.0115" pos="0.0000 0.0000 -0.0090" mass="0.0085" rgba="0.36 0.56 0.9 1"/>
+            <geom class="part" name="l_hip_pitch_servo" type="box" size="0.0114 0.0060 0.0155" pos="0.0000 0.0000 -0.0090" mass="0.0140" rgba="0.36 0.56 0.9 1"/>
             <geom class="part" name="l_thigh" type="box" size="0.0090 0.0090 0.0225" pos="0.0000 0.0000 -0.0225" mass="0.0110" rgba="0.95 0.95 0.93 1"/>
             <body name="l_knee" pos="0.0000 0.0000 -0.0450">
               <joint name="l_knee" axis="0 1 0" range="0 120"/>
-              <geom class="part" name="l_knee_servo" type="box" size="0.0115 0.0045 0.0115" pos="0.0000 0.0000 0.0000" mass="0.0085" rgba="0.36 0.56 0.9 1"/>
+              <geom class="part" name="l_knee_servo" type="box" size="0.0114 0.0060 0.0155" pos="0.0000 0.0000 0.0000" mass="0.0140" rgba="0.36 0.56 0.9 1"/>
               <geom class="part" name="l_shin" type="box" size="0.0090 0.0090 0.0225" pos="0.0000 0.0000 -0.0225" mass="0.0110" rgba="0.95 0.95 0.93 1"/>
               <body name="l_ankle_pitch" pos="0.0000 0.0000 -0.0450">
                 <joint name="l_ankle_pitch" axis="0 1 0" range="-45 45"/>
-                <geom class="part" name="l_ankle_pitch_servo" type="box" size="0.0115 0.0045 0.0115" pos="0.0000 0.0000 0.0110" mass="0.0085" rgba="0.36 0.56 0.9 1"/>
+                <geom class="part" name="l_ankle_pitch_servo" type="box" size="0.0114 0.0060 0.0155" pos="0.0000 0.0000 0.0110" mass="0.0140" rgba="0.36 0.56 0.9 1"/>
                 <body name="l_ankle_roll" pos="0.0000 0.0000 0.0000">
                   <joint name="l_ankle_roll" axis="1 0 0" range="-30 30"/>
-                  <geom class="part" name="l_ankle_roll_servo" type="box" size="0.0045 0.0115 0.0115" pos="-0.0140 0.0000 -0.0020" mass="0.0085" rgba="0.36 0.56 0.9 1"/>
+                  <geom class="part" name="l_ankle_roll_servo" type="box" size="0.0060 0.0114 0.0155" pos="-0.0140 0.0000 -0.0020" mass="0.0140" rgba="0.36 0.56 0.9 1"/>
                   <geom class="foot" name="l_foot" type="box" size="0.0360 0.0210 0.0040" pos="0.0100 0.0000 -0.0210" mass="0.0120" rgba="0.88 0.88 0.86 1"/>
                 </body>
               </body>
@@ -64,21 +64,21 @@
         <geom class="part" name="r_hip_yaw_servo" type="box" size="0.0061 0.0143 0.0114" pos="0.0000 0.0000 0.0220" mass="0.0134" rgba="0.3 0.36 0.52 1"/>
         <body name="r_hip_roll" pos="0.0000 0.0000 0.0000">
           <joint name="r_hip_roll" axis="1 0 0" range="-25 25"/>
-          <geom class="part" name="r_hip_roll_servo" type="box" size="0.0045 0.0115 0.0115" pos="-0.0140 0.0000 0.0000" mass="0.0085" rgba="0.36 0.56 0.9 1"/>
+          <geom class="part" name="r_hip_roll_servo" type="box" size="0.0060 0.0114 0.0155" pos="-0.0140 0.0000 0.0000" mass="0.0140" rgba="0.36 0.56 0.9 1"/>
           <body name="r_hip_pitch" pos="0.0000 0.0000 0.0000">
             <joint name="r_hip_pitch" axis="0 1 0" range="-90 45"/>
-            <geom class="part" name="r_hip_pitch_servo" type="box" size="0.0115 0.0045 0.0115" pos="0.0000 0.0000 -0.0090" mass="0.0085" rgba="0.36 0.56 0.9 1"/>
+            <geom class="part" name="r_hip_pitch_servo" type="box" size="0.0114 0.0060 0.0155" pos="0.0000 0.0000 -0.0090" mass="0.0140" rgba="0.36 0.56 0.9 1"/>
             <geom class="part" name="r_thigh" type="box" size="0.0090 0.0090 0.0225" pos="0.0000 0.0000 -0.0225" mass="0.0110" rgba="0.95 0.95 0.93 1"/>
             <body name="r_knee" pos="0.0000 0.0000 -0.0450">
               <joint name="r_knee" axis="0 1 0" range="0 120"/>
-              <geom class="part" name="r_knee_servo" type="box" size="0.0115 0.0045 0.0115" pos="0.0000 0.0000 0.0000" mass="0.0085" rgba="0.36 0.56 0.9 1"/>
+              <geom class="part" name="r_knee_servo" type="box" size="0.0114 0.0060 0.0155" pos="0.0000 0.0000 0.0000" mass="0.0140" rgba="0.36 0.56 0.9 1"/>
               <geom class="part" name="r_shin" type="box" size="0.0090 0.0090 0.0225" pos="0.0000 0.0000 -0.0225" mass="0.0110" rgba="0.95 0.95 0.93 1"/>
               <body name="r_ankle_pitch" pos="0.0000 0.0000 -0.0450">
                 <joint name="r_ankle_pitch" axis="0 1 0" range="-45 45"/>
-                <geom class="part" name="r_ankle_pitch_servo" type="box" size="0.0115 0.0045 0.0115" pos="0.0000 0.0000 0.0110" mass="0.0085" rgba="0.36 0.56 0.9 1"/>
+                <geom class="part" name="r_ankle_pitch_servo" type="box" size="0.0114 0.0060 0.0155" pos="0.0000 0.0000 0.0110" mass="0.0140" rgba="0.36 0.56 0.9 1"/>
                 <body name="r_ankle_roll" pos="0.0000 0.0000 0.0000">
                   <joint name="r_ankle_roll" axis="1 0 0" range="-30 30"/>
-                  <geom class="part" name="r_ankle_roll_servo" type="box" size="0.0045 0.0115 0.0115" pos="-0.0140 0.0000 -0.0020" mass="0.0085" rgba="0.36 0.56 0.9 1"/>
+                  <geom class="part" name="r_ankle_roll_servo" type="box" size="0.0060 0.0114 0.0155" pos="-0.0140 0.0000 -0.0020" mass="0.0140" rgba="0.36 0.56 0.9 1"/>
                   <geom class="foot" name="r_foot" type="box" size="0.0360 0.0210 0.0040" pos="0.0100 0.0000 -0.0210" mass="0.0120" rgba="0.88 0.88 0.86 1"/>
                 </body>
               </body>
@@ -132,17 +132,17 @@
 
   <actuator>
     <position name="l_hip_yaw" joint="l_hip_yaw" kp="8.0" forcerange="-0.216 0.216" ctrlrange="-0.7854 0.7854"/>
-    <position name="l_hip_roll" joint="l_hip_roll" kp="8.0" forcerange="-0.471 0.471" ctrlrange="-0.4363 0.4363"/>
-    <position name="l_hip_pitch" joint="l_hip_pitch" kp="8.0" forcerange="-0.471 0.471" ctrlrange="-1.5708 0.7854"/>
-    <position name="l_knee" joint="l_knee" kp="8.0" forcerange="-0.471 0.471" ctrlrange="0.0000 2.0944"/>
-    <position name="l_ankle_pitch" joint="l_ankle_pitch" kp="8.0" forcerange="-0.471 0.471" ctrlrange="-0.7854 0.7854"/>
-    <position name="l_ankle_roll" joint="l_ankle_roll" kp="8.0" forcerange="-0.471 0.471" ctrlrange="-0.5236 0.5236"/>
+    <position name="l_hip_roll" joint="l_hip_roll" kp="8.0" forcerange="-0.343 0.343" ctrlrange="-0.4363 0.4363"/>
+    <position name="l_hip_pitch" joint="l_hip_pitch" kp="8.0" forcerange="-0.343 0.343" ctrlrange="-1.5708 0.7854"/>
+    <position name="l_knee" joint="l_knee" kp="8.0" forcerange="-0.343 0.343" ctrlrange="0.0000 2.0944"/>
+    <position name="l_ankle_pitch" joint="l_ankle_pitch" kp="8.0" forcerange="-0.343 0.343" ctrlrange="-0.7854 0.7854"/>
+    <position name="l_ankle_roll" joint="l_ankle_roll" kp="8.0" forcerange="-0.343 0.343" ctrlrange="-0.5236 0.5236"/>
     <position name="r_hip_yaw" joint="r_hip_yaw" kp="8.0" forcerange="-0.216 0.216" ctrlrange="-0.7854 0.7854"/>
-    <position name="r_hip_roll" joint="r_hip_roll" kp="8.0" forcerange="-0.471 0.471" ctrlrange="-0.4363 0.4363"/>
-    <position name="r_hip_pitch" joint="r_hip_pitch" kp="8.0" forcerange="-0.471 0.471" ctrlrange="-1.5708 0.7854"/>
-    <position name="r_knee" joint="r_knee" kp="8.0" forcerange="-0.471 0.471" ctrlrange="0.0000 2.0944"/>
-    <position name="r_ankle_pitch" joint="r_ankle_pitch" kp="8.0" forcerange="-0.471 0.471" ctrlrange="-0.7854 0.7854"/>
-    <position name="r_ankle_roll" joint="r_ankle_roll" kp="8.0" forcerange="-0.471 0.471" ctrlrange="-0.5236 0.5236"/>
+    <position name="r_hip_roll" joint="r_hip_roll" kp="8.0" forcerange="-0.343 0.343" ctrlrange="-0.4363 0.4363"/>
+    <position name="r_hip_pitch" joint="r_hip_pitch" kp="8.0" forcerange="-0.343 0.343" ctrlrange="-1.5708 0.7854"/>
+    <position name="r_knee" joint="r_knee" kp="8.0" forcerange="-0.343 0.343" ctrlrange="0.0000 2.0944"/>
+    <position name="r_ankle_pitch" joint="r_ankle_pitch" kp="8.0" forcerange="-0.343 0.343" ctrlrange="-0.7854 0.7854"/>
+    <position name="r_ankle_roll" joint="r_ankle_roll" kp="8.0" forcerange="-0.343 0.343" ctrlrange="-0.5236 0.5236"/>
     <position name="l_shoulder_pitch" joint="l_shoulder_pitch" kp="8.0" forcerange="-0.216 0.216" ctrlrange="-3.1416 1.0472"/>
     <position name="l_shoulder_roll" joint="l_shoulder_roll" kp="8.0" forcerange="-0.177 0.177" ctrlrange="-0.1745 2.7925"/>
     <position name="l_elbow" joint="l_elbow" kp="8.0" forcerange="-0.177 0.177" ctrlrange="-2.2689 0.0000"/>
