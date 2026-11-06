@@ -9,11 +9,14 @@ from the same dimensions as `sim/mini_humanoid/gen_robot.py` (303 mm tall, 481 g
 
 ![20-joint servo map](images/joints.png)
 
+![BOM](images/bom.png)
+
 | File | Artboard |
 | --- | --- |
-| `Main.dc.html` | Front view, shell A |
-| `Side.dc.html` | Side view with CoM (146 mm) |
+| `Main.dc.html` | Front view, shell A, with part sizes and joint heights |
+| `Side.dc.html` | Side view with depths, internal layout and CoM (146 mm) |
 | `Joints.dc.html` | 20-joint map, colored by servo (DS843MG / MG90S / SG90) |
+| `BOM.dc.html` | Bill of materials, about 6.68M VND |
 | `canvas.json` | Canvas layout |
 | `images/*.png` | Rendered exports of the three artboards |
 

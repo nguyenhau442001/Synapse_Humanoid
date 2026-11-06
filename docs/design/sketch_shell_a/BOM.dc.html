@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Mini Humanoid – BOM</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1100px; height: 1180px; box-sizing: border-box; padding: 48px 56px; background: #EEF1F5; display: flex; flex-direction: column; gap: 22px; font-family: Inter, system-ui, sans-serif; color: #1B1E24">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<p style="margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.12em; color: #4A515C">BOM · v0.5</p>
+<h2 style="margin: 0; font-family: 'Space Grotesk', Inter, sans-serif; font-size: 40px; font-weight: 700">Danh sách linh kiện</h2>
+</div>
+<div style="display: flex; gap: 14px">
+<div style="flex: 1 1 0; background: #FFFFFF; border: 1px solid #D5DAE1; border-radius: 16px; padding: 16px 20px; display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 13px; color: #4A515C">Tổng · 12 × DS843MG</span>
+<span style="font-family: 'Space Grotesk', Inter, sans-serif; font-size: 30px; font-weight: 700">6.680.000 ₫</span>
+</div>
+<div style="flex: 1 1 0; background: #FFFFFF; border: 1px solid #D5DAE1; border-radius: 16px; padding: 16px 20px; display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 13px; color: #4A515C">Phương án trộn · MG92B ở hông pitch, cổ chân</span>
+<span style="font-family: 'Space Grotesk', Inter, sans-serif; font-size: 30px; font-weight: 700">≈ 5.900.000 ₫</span>
+</div>
+<div style="flex: 1 1 0; background: #FFF4EC; border: 1px solid #F5C9A8; border-radius: 16px; padding: 16px 20px; display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 13px; color: #9A3412">Cần kiểm tra trước</span>
+<span style="font-size: 15px; font-weight: 600; color: #7C2D12">Giá DS843MG chưa có nguồn công bố, đang tạm tính 300k/con và chiếm hơn nửa tổng</span>
+</div>
+</div>
+<div style="background: #FFFFFF; border: 1px solid #D5DAE1; border-radius: 16px; padding: 4px 8px 8px">
+<table style="width: 100%; border-collapse: collapse; font-size: 15px">
+<thead><tr style="color: #4A515C; font-size: 13px; text-align: left">
+<th style="padding: 14px 12px 6px; font-weight: 600">Linh kiện</th>
+<th style="padding: 14px 12px 6px; font-weight: 600; text-align: right">SL</th>
+<th style="padding: 14px 12px 6px; font-weight: 600; text-align: right">Đơn giá</th>
+<th style="padding: 14px 12px 6px; font-weight: 600; text-align: right">Thành tiền</th>
+<th style="padding: 14px 12px 6px; font-weight: 600">Ghi chú</th>
+</tr></thead>
+<tbody>
+<tr><td colspan="5" style="padding: 18px 12px 8px; font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: #2F6FEB; text-transform: uppercase">Servo</td></tr>
+<tr style="border-top: 1px solid #E3E7EC"><td style="padding: 10px 12px; font-weight: 600">Corona DS843MG</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums">12</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums; color: #4A515C">300.000</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600">3.600.000</td><td style="padding: 10px 12px; color: #4A515C; font-size: 14px">10 khớp chân + 2 dự phòng · 4,8 kg·cm · 23 × 9 × 23 mm</td></tr>
+<tr style="border-top: 1px solid #E3E7EC"><td style="padding: 10px 12px; font-weight: 600">MG90S bánh răng kim loại</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums">5</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums; color: #4A515C">60.000</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600">300.000</td><td style="padding: 10px 12px; color: #4A515C; font-size: 14px">Hông yaw, vai pitch + 1 dự phòng · 22,8 × 12,2 × 28,5 mm</td></tr>
+<tr style="border-top: 1px solid #E3E7EC"><td style="padding: 10px 12px; font-weight: 600">SG90</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums">7</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums; color: #4A515C">30.000</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600">210.000</td><td style="padding: 10px 12px; color: #4A515C; font-size: 14px">Vai roll, khuỷu, đầu + 1 dự phòng · 23 × 12,2 × 29 mm</td></tr>
+<tr><td colspan="5" style="padding: 18px 12px 8px; font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: #0F7B5F; text-transform: uppercase">Điều khiển & cảm biến</td></tr>
+<tr style="border-top: 1px solid #E3E7EC"><td style="padding: 10px 12px; font-weight: 600">Radxa Zero 3W 2 GB + microSD 32 GB</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums">1</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums; color: #4A515C">750.000</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600">750.000</td><td style="padding: 10px 12px; color: #4A515C; font-size: 14px">4× Cortex-A55, NPU 0,8 TOPS · 65 × 30 mm</td></tr>
+<tr style="border-top: 1px solid #E3E7EC"><td style="padding: 10px 12px; font-weight: 600">STM32F411 Black Pill</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums">1</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums; color: #4A515C">120.000</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600">120.000</td><td style="padding: 10px 12px; color: #4A515C; font-size: 14px">Cortex-M4 · nội suy servo, watchdog</td></tr>
+<tr style="border-top: 1px solid #E3E7EC"><td style="padding: 10px 12px; font-weight: 600">PCA9685 16 kênh</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums">2</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums; color: #4A515C">100.000</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600">200.000</td><td style="padding: 10px 12px; color: #4A515C; font-size: 14px">20 kênh PWM cho 20 servo</td></tr>
+<tr style="border-top: 1px solid #E3E7EC"><td style="padding: 10px 12px; font-weight: 600">Camera IMX219 + cáp FPC</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums">1</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums; color: #4A515C">250.000</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600">250.000</td><td style="padding: 10px 12px; color: #4A515C; font-size: 14px">Kiểm tra chuẩn đầu nối CSI của Zero 3W</td></tr>
+<tr style="border-top: 1px solid #E3E7EC"><td style="padding: 10px 12px; font-weight: 600">IMU MPU6050</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums">1</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums; color: #4A515C">40.000</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600">40.000</td><td style="padding: 10px 12px; color: #4A515C; font-size: 14px">Đặt tại tâm hông</td></tr>
+<tr><td colspan="5" style="padding: 18px 12px 8px; font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: #C2410C; text-transform: uppercase">Nguồn</td></tr>
+<tr style="border-top: 1px solid #E3E7EC"><td style="padding: 10px 12px; font-weight: 600">Pin 2S 1000 mAh + sạc cân bằng</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums">1</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums; color: #4A515C">400.000</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600">400.000</td><td style="padding: 10px 12px; color: #4A515C; font-size: 14px">56 × 30 × 19 mm · 57 g</td></tr>
+<tr style="border-top: 1px solid #E3E7EC"><td style="padding: 10px 12px; font-weight: 600">UBEC 6 V 8 A + buck 5 V 3 A</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums">1</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums; color: #4A515C">200.000</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600">200.000</td><td style="padding: 10px 12px; color: #4A515C; font-size: 14px">6 V cho servo, 5 V cho Radxa</td></tr>
+<tr style="border-top: 1px solid #E3E7EC"><td style="padding: 10px 12px; font-weight: 600">Tụ, phân áp, công tắc, XT30, LED WS2812</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums">1</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums; color: #4A515C">60.000</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600">60.000</td><td style="padding: 10px 12px; color: #4A515C; font-size: 14px"></td></tr>
+<tr><td colspan="5" style="padding: 18px 12px 8px; font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: #6B7380; text-transform: uppercase">Cơ khí</td></tr>
+<tr style="border-top: 1px solid #E3E7EC"><td style="padding: 10px 12px; font-weight: 600">Khung PLA + vỏ LW-PLA, ốc, ổ đỡ, nam châm</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums">1</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums; color: #4A515C">550.000</td><td style="padding: 10px 12px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600">550.000</td><td style="padding: 10px 12px; color: #4A515C; font-size: 14px">Hỏi trước shop in có LW-PLA không</td></tr>
+<tr style="border-top: 2px solid #1B1E24"><td style="padding: 14px 12px; font-weight: 700">Tổng</td><td></td><td></td>
+<td style="padding: 14px 12px; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums">6.680.000</td>
+<td style="padding: 14px 12px; color: #4A515C; font-size: 14px">Giá ước tính, VNĐ</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1100,"height":1180}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>
