@@ -1,11 +1,15 @@
 # Mini humanoid sketches (v0.5)
 
-**Main shell: A2 · Mico.** A1's face in Pico's suit: white shell, signal-orange collar, cuffs and
-shin bands, chest control box, backpack over the battery, clear PETG dome over the face. Every part is a soft capsule or dome.
-The eyes are camera lenses (IMX219 behind the robot's right eye), the ears are I2S MEMS mic grilles,
-the neck stem sits in an orange collar ring on the torso, and a Vietnam flag patch is on the chest.
+**Main shell: A2 · Mico v2.0 — cute outside, capable inside.** A1's face in Pico's suit, every part a soft
+capsule or dome. Perception and expression are separate: the IMX219 camera and a VL53L0X ToF sit behind
+their own forehead window, while one 2.42″ OLED behind the visor draws the eyes and mouth. Ears are I2S MEMS
+mic grilles, each foot has heel and toe FSRs, the neck sits in an orange collar ring, Vietnam flag on the chest.
 
 ![Mico, main shell](images/a2_mico.png)
+
+![Mico side, rear and feet](images/mico_views.png)
+
+![Mico expressions](images/mico_faces.png)
 
 ## Hero family
 
@@ -39,13 +43,15 @@ Pauldrons widen it to about 132 mm (A: 119) and must ride on the upper arm so sh
 
 | File | Artboard |
 | --- | --- |
-| `A2_Mico.dc.html` | **Main shell** · Mico |
+| `A2_Mico.dc.html` | **Main shell** · Mico v2.0 |
+| `Mico_Views.dc.html` | Mico side, rear and foot underside (FSR pads) |
+| `Mico_Faces.dc.html` | Mico expression set on the OLED |
 | `Main.dc.html` | A1 · Hero front view, with part sizes and joint heights |
 | `A3_Pico.dc.html`, `A4_Luno.dc.html`, `A5_Kiko.dc.html` | Hero family variants |
 | `ShellB.dc.html` | Shell B (villain) armor, front and side |
 | `Side.dc.html` | Side view with depths, internal layout and CoM (146 mm) |
 | `Joints.dc.html` | 20-joint map, colored by servo (DS843MG / MG90S / SG90) |
-| `BOM.dc.html` | Bill of materials at HCMC prices (Nov 2026), about 7.64M VND |
+| `BOM.dc.html` | Bill of materials v0.7, cheapest HCMC prices (Nov 2026), about 5.65M VND |
 | `Drawing.dc.html` | GA drawing, first-angle projection (front, side, top), A1 at 1:1 |
 | `canvas.json` | Canvas layout |
 | `images/*.png` | Rendered exports of the three artboards |
