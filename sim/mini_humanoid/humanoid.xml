@@ -53,6 +53,8 @@
                   <joint name="l_ankle_roll" axis="1 0 0" range="-30 30"/>
                   <geom class="part" name="l_ankle_roll_servo" type="box" size="0.0060 0.0114 0.0155" pos="-0.0140 0.0000 -0.0020" mass="0.0140" rgba="0.36 0.56 0.9 1"/>
                   <geom class="foot" name="l_foot" type="box" size="0.0360 0.0210 0.0040" pos="0.0100 0.0000 -0.0210" mass="0.0120" rgba="0.88 0.88 0.86 1"/>
+                  <site name="l_fsr_toe" type="box" size="0.0181 0.0215 0.003" pos="0.0280 0 -0.0250"/>
+                  <site name="l_fsr_heel" type="box" size="0.0181 0.0215 0.003" pos="-0.0080 0 -0.0250"/>
                 </body>
               </body>
             </body>
@@ -80,6 +82,8 @@
                   <joint name="r_ankle_roll" axis="1 0 0" range="-30 30"/>
                   <geom class="part" name="r_ankle_roll_servo" type="box" size="0.0060 0.0114 0.0155" pos="-0.0140 0.0000 -0.0020" mass="0.0140" rgba="0.36 0.56 0.9 1"/>
                   <geom class="foot" name="r_foot" type="box" size="0.0360 0.0210 0.0040" pos="0.0100 0.0000 -0.0210" mass="0.0120" rgba="0.88 0.88 0.86 1"/>
+                  <site name="r_fsr_toe" type="box" size="0.0181 0.0215 0.003" pos="0.0280 0 -0.0250"/>
+                  <site name="r_fsr_heel" type="box" size="0.0181 0.0215 0.003" pos="-0.0080 0 -0.0250"/>
                 </body>
               </body>
             </body>
@@ -158,6 +162,10 @@
     <gyro name="imu_gyro" site="imu"/>
     <accelerometer name="imu_acc" site="imu"/>
     <subtreecom name="com" body="base"/>
+    <touch name="l_fsr_toe" site="l_fsr_toe"/>
+    <touch name="l_fsr_heel" site="l_fsr_heel"/>
+    <touch name="r_fsr_toe" site="r_fsr_toe"/>
+    <touch name="r_fsr_heel" site="r_fsr_heel"/>
   </sensor>
 
   <keyframe>

@@ -28,6 +28,10 @@ SERVOS = {
 }
 LEG_HEAVY = os.environ.get("LEG_HEAVY", "MG92B")
 LEG_SERVO = {}
+# Foot FSRs (FSR402, heel + toe). Box-plane contacts sit at the sole corners, so each touch
+# site covers half the sole and sums the force on that half: front half = toe, rear half = heel.
+FSR_TOE_X = 28.0    # site centre, mm forward of the ankle axis
+FSR_HEEL_X = -8.0   # site centre, mm from the ankle axis (negative = behind)
 KP = 8.0          # position gain, N.m/rad (stiffness of a hobby servo, tune vs. real)
 DAMPING = 0.02    # joint damping, N.m.s/rad
 ARMATURE = 5e-4   # reflected rotor inertia through the gearbox, kg.m^2
@@ -195,6 +199,13 @@ def mjcf():
             cls = "hidden" if g.color == "hidden" else ("foot" if g.name.endswith("foot") else "part")
             out.append(f'{p}  <geom class="{cls}" name="{g.name}" type="box" size="{half}" '
                        f'pos="{m(g.pos)}" mass="{g.mass / 1000:.4f}" rgba="{rgba(g.color)}"/>')
+            if cls == "foot":
+                # FSR402 heel / toe, read as MuJoCo touch sensors (see FSR_TOE_X)
+                side = g.name.split("_")[0]
+                sole_z = (g.pos[2] - g.size[2] / 2) / 1000
+                for pad, x in (("toe", FSR_TOE_X), ("heel", FSR_HEEL_X)):
+                    out.append(f'{p}  <site name="{side}_fsr_{pad}" type="box" size="0.0181 0.0215 0.003" '
+                               f'pos="{x / 1000:.4f} 0 {sole_z:.4f}"/>')
         for c in body.children:
             emit(c, indent + 1)
         out.append(f"{p}</body>")
@@ -211,7 +222,8 @@ def mjcf():
         '    <gyro name="imu_gyro" site="imu"/>',
         '    <accelerometer name="imu_acc" site="imu"/>',
         '    <subtreecom name="com" body="base"/>',
-    ])
+    ] + [f'    <touch name="{side}_fsr_{pad}" site="{side}_fsr_{pad}"/>'
+         for side in ("l", "r") for pad in ("toe", "heel")])
     body_xml = "\n".join(out)
     # IMU site inside the torso, next to the electronics stack
     body_xml = body_xml.replace('<freejoint name="root"/>',

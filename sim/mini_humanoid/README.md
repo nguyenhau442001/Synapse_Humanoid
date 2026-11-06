@@ -15,7 +15,7 @@ nặng hơn 55 g. Muốn so sánh với DS843MG: `LEG_HEAVY=DS843MG python gen_r
 | File | Dùng cho |
 | --- | --- |
 | `gen_robot.py` | Nguồn duy nhất: sửa kích thước/khối lượng ở đây rồi chạy lại để sinh 2 file dưới |
-| `humanoid.xml` | MuJoCo (MJCF): 20 position actuator có giới hạn lực, IMU, keyframe `stand` |
+| `humanoid.xml` | MuJoCo (MJCF): 20 position actuator có giới hạn lực, IMU, 4 cảm biến lực bàn chân (gót, mũi), keyframe `stand` |
 | `humanoid.urdf` | Foxglove / RViz / ROS 2 (`robot_description`) |
 | `demo.py` | Đi thẳng 8 bước → xoay trái 60° → vẫy tay; `--check` in báo cáo tải servo |
 | `kin_dyn.py` | Bảng DH 5 chuỗi + kiểm FK với MuJoCo, bảng khâu và bảng khớp → `tables/*.csv` |
@@ -52,6 +52,9 @@ Mở Foxglove → Open connection → `ws://localhost:8765` → panel **3D**: ro
 không cần file mesh.
 
 ## Kết quả kiểm tra
+
+- Cảm biến bàn chân `l_fsr_toe`, `l_fsr_heel`, `r_fsr_toe`, `r_fsr_heel` (FSR402): khi đứng yên tổng bốn cảm biến
+  bằng đúng trọng lượng 5,25 N; gót 1,73 N, mũi 0,90 N mỗi chân.
 
 - `demo.py --check`: đi 8 bước tiến 167 mm, xoay 62° (mục tiêu 60°), thân nghiêng tối đa 6,5°, không ngã.
   Hông roll là khớp căng nhất: đỉnh 38% lực kẹt, vượt mức liên tục (1/3) khoảng 1 s trong cả bài chạy;
