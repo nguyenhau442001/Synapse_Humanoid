@@ -2,6 +2,8 @@
 
 **Main shell: A2 · Mico.** A1's face in Pico's suit: white shell, signal-orange collar, cuffs and
 shin bands, chest control box, backpack over the battery, clear PETG dome over the face. Every part is a soft capsule or dome.
+The eyes are camera lenses (IMX219 behind the robot's right eye), the ears are I2S MEMS mic grilles,
+the neck stem sits in an orange collar ring on the torso, and a Vietnam flag patch is on the chest.
 
 ![Mico, main shell](images/a2_mico.png)
 
