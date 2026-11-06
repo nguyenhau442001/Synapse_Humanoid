@@ -1,8 +1,8 @@
 <!doctype html>
-<html lang="vi">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Mini Humanoid – sơ đồ 20 khớp</title>
+<title>Mini Humanoid – 20-joint map</title>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -17,11 +17,11 @@ a{color:#2F6FEB}a:hover{color:#1E4FB8}
 </helmet>
 <div style="width: 1120px; height: 1180px; box-sizing: border-box; padding: 48px 56px; background: #EEF1F5; display: flex; flex-direction: column; gap: 20px; font-family: Inter, system-ui, sans-serif; color: #1B1E24">
 <div style="display: flex; flex-direction: column; gap: 6px">
-<p style="margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.12em; color: #4A515C">SƠ ĐỒ KHỚP · MẶT TRƯỚC</p>
-<h2 style="margin: 0; font-family: 'Space Grotesk', Inter, sans-serif; font-size: 40px; font-weight: 700">20 khớp, 3 loại servo theo tải</h2>
+<p style="margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.12em; color: #4A515C">JOINT MAP · FRONT VIEW</p>
+<h2 style="margin: 0; font-family: 'Space Grotesk', Inter, sans-serif; font-size: 40px; font-weight: 700">20 joints, 3 servo types sized by load</h2>
 </div>
 <div style="display: flex; gap: 40px; align-items: flex-start">
-<svg viewBox="-100 0 200 340" width="500" height="850" role="img" aria-label="Robot nhìn từ phía trước với 20 khớp đánh số, tô màu theo loại servo">
+<svg viewBox="-100 0 200 340" width="500" height="850" role="img" aria-label="Front view of the robot with 20 numbered joints, coloured by servo type">
 <g fill-opacity="0.55" stroke-opacity="0.6">
 <line x1="-90" x2="90" y1="330" y2="330" stroke="#B9BEC6" stroke-width="0.8"></line>
 <rect x="1" y="319" width="42" height="11" rx="6" fill="#FBFBFA" stroke="#B9BEC6" stroke-width="0.8"></rect>
@@ -75,40 +75,40 @@ a{color:#2F6FEB}a:hover{color:#1E4FB8}
 <div style="background: #FFFFFF; border: 1px solid #D5DAE1; border-radius: 16px; padding: 20px 22px; display: flex; flex-direction: column; gap: 10px">
 <div style="display: flex; align-items: center; gap: 10px">
 <span style="width: 14px; height: 14px; border-radius: 999px; background: #2F6FEB"></span>
-<h3 style="margin: 0; font-family: 'Space Grotesk', Inter, sans-serif; font-size: 20px; font-weight: 700">Corona DS843MG · 10 khớp</h3>
+<h3 style="margin: 0; font-family: 'Space Grotesk', Inter, sans-serif; font-size: 20px; font-weight: 700">Corona DS843MG · 10 joints</h3>
 </div>
-<p style="margin: 0; font-size: 14px; color: #4A515C">4,8 kg·cm · 8,5 g · khớp chân chịu tải</p>
+<p style="margin: 0; font-size: 14px; color: #4A515C">4.8 kg·cm · 8.5 g · load-bearing leg joints</p>
 <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 16px; font-size: 15px">
-<span>2 / 8 · Hông roll</span><span>3 / 9 · Hông pitch</span>
-<span>4 / 10 · Gối</span><span>5 / 11 · Cổ chân pitch</span>
-<span>6 / 12 · Cổ chân roll</span>
+<span>2 / 8 · Hip roll</span><span>3 / 9 · Hip pitch</span>
+<span>4 / 10 · Knee</span><span>5 / 11 · Ankle pitch</span>
+<span>6 / 12 · Ankle roll</span>
 </div>
 </div>
 <div style="background: #FFFFFF; border: 1px solid #D5DAE1; border-radius: 16px; padding: 20px 22px; display: flex; flex-direction: column; gap: 10px">
 <div style="display: flex; align-items: center; gap: 10px">
 <span style="width: 14px; height: 14px; border-radius: 999px; background: #C2410C"></span>
-<h3 style="margin: 0; font-family: 'Space Grotesk', Inter, sans-serif; font-size: 20px; font-weight: 700">MG90S · 4 khớp</h3>
+<h3 style="margin: 0; font-family: 'Space Grotesk', Inter, sans-serif; font-size: 20px; font-weight: 700">MG90S · 4 joints</h3>
 </div>
-<p style="margin: 0; font-size: 14px; color: #4A515C">2,2 kg·cm · 13,4 g · bánh răng kim loại, chịu va đập</p>
+<p style="margin: 0; font-size: 14px; color: #4A515C">2.2 kg·cm · 13.4 g · metal gears, shock tolerant</p>
 <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 16px; font-size: 15px">
-<span>1 / 7 · Hông yaw</span><span>13 / 16 · Vai pitch</span>
+<span>1 / 7 · Hip yaw</span><span>13 / 16 · Shoulder pitch</span>
 </div>
 </div>
 <div style="background: #FFFFFF; border: 1px solid #D5DAE1; border-radius: 16px; padding: 20px 22px; display: flex; flex-direction: column; gap: 10px">
 <div style="display: flex; align-items: center; gap: 10px">
 <span style="width: 14px; height: 14px; border-radius: 999px; background: #0F7B5F"></span>
-<h3 style="margin: 0; font-family: 'Space Grotesk', Inter, sans-serif; font-size: 20px; font-weight: 700">SG90 · 6 khớp</h3>
+<h3 style="margin: 0; font-family: 'Space Grotesk', Inter, sans-serif; font-size: 20px; font-weight: 700">SG90 · 6 joints</h3>
 </div>
-<p style="margin: 0; font-size: 14px; color: #4A515C">1,8 kg·cm · 9 g · khớp nhẹ, chỉ vẫy tay và quay đầu</p>
+<p style="margin: 0; font-size: 14px; color: #4A515C">1.8 kg·cm · 9 g · light joints, waving and head motion only</p>
 <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 16px; font-size: 15px">
-<span>14 / 17 · Vai roll</span><span>15 / 18 · Khuỷu</span>
-<span>19 · Cổ yaw</span><span>20 · Đầu pitch</span>
+<span>14 / 17 · Shoulder roll</span><span>15 / 18 · Elbow</span>
+<span>19 · Neck yaw</span><span>20 · Head pitch</span>
 </div>
 </div>
 <div style="display: flex; flex-direction: column; gap: 8px; font-size: 14px; color: #4A515C; padding: 4px 4px 0">
-<p style="margin: 0">Đánh số: chân trái 1–6, chân phải 7–12, tay trái 13–15, tay phải 16–18, đầu 19–20.</p>
-<p style="margin: 0">Nhìn từ phía trước nên chân và tay trái của robot nằm bên phải hình.</p>
-<p style="margin: 0">H: ba trục hông giao nhau (cao 115 mm). A: hai trục cổ chân giao nhau (cao 25 mm).</p>
+<p style="margin: 0">Numbering: left leg 1–6, right leg 7–12, left arm 13–15, right arm 16–18, head 19–20.</p>
+<p style="margin: 0">Seen from the front, so the robot’s left limbs are on the right of the drawing.</p>
+<p style="margin: 0">H: the three hip axes intersect (115 mm high). A: the two ankle axes intersect (25 mm high).</p>
 </div>
 </div>
 </div>
