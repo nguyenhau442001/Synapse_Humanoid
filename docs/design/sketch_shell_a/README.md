@@ -45,7 +45,7 @@ Pauldrons widen it to about 132 mm (A: 119) and must ride on the upper arm so sh
 | `ShellB.dc.html` | Shell B (villain) armor, front and side |
 | `Side.dc.html` | Side view with depths, internal layout and CoM (146 mm) |
 | `Joints.dc.html` | 20-joint map, colored by servo (DS843MG / MG90S / SG90) |
-| `BOM.dc.html` | Bill of materials, about 6.68M VND |
+| `BOM.dc.html` | Bill of materials, about 6.78M VND |
 | `Drawing.dc.html` | GA drawing, first-angle projection (front, side, top), A1 at 1:1 |
 | `canvas.json` | Canvas layout |
 | `images/*.png` | Rendered exports of the three artboards |
