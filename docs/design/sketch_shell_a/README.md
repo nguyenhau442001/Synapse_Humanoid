@@ -1,7 +1,7 @@
 # Mini humanoid sketches (v0.5)
 
 **Main shell: A2 · Mico.** A1's face in Pico's suit: white shell, signal-orange collar, cuffs and
-shin bands, chest control box, backpack over the battery, clear PETG dome over the face.
+shin bands, chest control box, backpack over the battery, clear PETG dome over the face. Every part is a soft capsule or dome.
 
 ![Mico, main shell](images/a2_mico.png)
 
