@@ -3,8 +3,6 @@
 <robot name="mini_humanoid">
   <!-- Frames follow REP-103 (x forward, y left, z up) and REP-120 names (imu_link, l_sole, ...).
        base_link sits at the hip point H, 115 mm above the floor in the standing pose. -->
-  <!-- MuJoCo reads this tag when the URDF is loaded directly; other tools ignore it. -->
-  <mujoco><compiler discardvisual="false" fusestatic="false" balanceinertia="true"/></mujoco>
   <material name="battery"><color rgba="0.93 0.55 0.42 1"/></material>
   <material name="frame"><color rgba="0.88 0.88 0.86 1"/></material>
   <material name="hidden"><color rgba="0 0 0 0"/></material>

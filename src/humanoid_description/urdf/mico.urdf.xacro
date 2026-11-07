@@ -3,6 +3,8 @@
      Mico for Gazebo Harmonic (gz-sim) + ros2_control. Same links, joints and frames as humanoid.urdf. -->
 <robot name="mico" xmlns:xacro="http://www.ros.org/wiki/xacro">
   <xacro:arg name="controllers" default="$(find humanoid_description)/config/mico_controllers.yaml"/>
+  <!-- camera:=false skips the rendered head camera (no GPU in the VM, or a faster headless run) -->
+  <xacro:arg name="camera" default="true"/>
   <!-- Frames follow REP-103 (x forward, y left, z up) and REP-120 names (imu_link, l_sole, ...).
        base_link sits at the hip point H, 115 mm above the floor in the standing pose. -->
   <material name="battery"><color rgba="0.93 0.55 0.42 1"/></material>
@@ -233,8 +235,10 @@
       <parameters>$(arg controllers)</parameters>
     </plugin>
     <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu"/>
-    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
-      <render_engine>ogre2</render_engine>
+    <!-- ground-truth odom -> base_link for Foxglove / RViz (the real robot will estimate this from the IMU) -->
+    <plugin filename="gz-sim-odometry-publisher-system" name="gz::sim::systems::OdometryPublisher">
+      <odom_frame>odom</odom_frame><robot_base_frame>base_link</robot_base_frame><dimensions>3</dimensions>
+      <odom_publish_frequency>50</odom_publish_frequency>
     </plugin>
   </gazebo>
 
@@ -243,6 +247,14 @@
       <always_on>1</always_on><update_rate>200</update_rate><topic>imu</topic><gz_frame_id>imu_link</gz_frame_id>
       <imu><angular_velocity><x><noise type="gaussian"><mean>0</mean><stddev>0.00087</stddev></noise></x><y><noise type="gaussian"><mean>0</mean><stddev>0.00087</stddev></noise></y><z><noise type="gaussian"><mean>0</mean><stddev>0.00087</stddev></noise></z></angular_velocity><linear_acceleration><x><noise type="gaussian"><mean>0</mean><stddev>0.039</stddev></noise></x><y><noise type="gaussian"><mean>0</mean><stddev>0.039</stddev></noise></y><z><noise type="gaussian"><mean>0</mean><stddev>0.039</stddev></noise></z></linear_acceleration></imu>
     </sensor>
+  </gazebo>
+
+  <!-- rendered sensors (camera, ToF) need ogre2; camera:=false skips them on machines without a GPU -->
+  <xacro:if value="$(arg camera)">
+  <gazebo>
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
   </gazebo>
 
   <gazebo reference="camera_link">
@@ -259,9 +271,11 @@
     <sensor name="tof" type="gpu_lidar">
       <always_on>1</always_on><update_rate>30</update_rate><topic>tof</topic><gz_frame_id>tof_link</gz_frame_id>
       <lidar><scan><horizontal><samples>1</samples><resolution>1</resolution>
-        <min_angle>0</min_angle><max_angle>0</max_angle></horizontal></scan><range><min>0.03</min><max>2.0</max><resolution>0.001</resolution></range></lidar>
+        <min_angle>0</min_angle><max_angle>0</max_angle></horizontal></scan>
+        <range><min>0.03</min><max>2.0</max><resolution>0.001</resolution></range></lidar>
     </sensor>
   </gazebo>
+  </xacro:if>
 
   <gazebo reference="l_ankle_roll_link"><mu1>1.0</mu1><mu2>1.0</mu2></gazebo>
   <gazebo reference="r_ankle_roll_link"><mu1>1.0</mu1><mu2>1.0</mu2></gazebo>

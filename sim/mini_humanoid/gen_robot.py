@@ -1,16 +1,16 @@
-"""Generate MJCF (MuJoCo) and URDF (Foxglove / ROS 2) for the 20-DoF mini humanoid (v0.5).
+"""Generate the URDF (ROS 2, Foxglove) and the Gazebo Harmonic xacro for Mico, the 20-DoF mini humanoid.
 
 Single source of truth: every size, mass and joint below comes from the design doc
 "Mini Humanoid - Thiết kế phần cứng". Edit here, re-run, both files update together.
 
-    python gen_robot.py            -> humanoid.xml, humanoid.urdf
+    python gen_robot.py    -> humanoid.urdf, ../../src/humanoid_description/urdf/mico.urdf.xacro
 
 Units in this file: millimetres and grams. Output files use metres and kilograms.
 Frame: x forward, y left, z up. Feet soles touch z = 0 in the default pose.
 """
 import os
 from dataclasses import dataclass, field
-from math import cos, pi, sin
+from math import pi
 from pathlib import Path
 
 # ---------------------------------------------------------------- servos
@@ -29,15 +29,9 @@ SERVOS = {
 LEG_HEAVY = os.environ.get("LEG_HEAVY", "MG92B")
 LEG_SERVO = {}
 # Feet sit 6 mm outboard of the ankle axis: with them centred the two soles (42 wide, 44 apart)
-# rubbed together while walking and turning. 6 mm leaves >= 3.8 mm clearance in demo.py.
+# rubbed together while walking and turning. 6 mm leaves >= 3.8 mm clearance during the demo.
 FOOT_OUT = 6.0
-# Foot FSRs (FSR402, heel + toe). Box-plane contacts sit at the sole corners, so each touch
-# site covers half the sole and sums the force on that half: front half = toe, rear half = heel.
-FSR_TOE_X = 28.0    # site centre, mm forward of the ankle axis
-FSR_HEEL_X = -8.0   # site centre, mm from the ankle axis (negative = behind)
-KP = 8.0          # position gain, N.m/rad (stiffness of a hobby servo, tune vs. real)
 DAMPING = 0.02    # joint damping, N.m.s/rad
-ARMATURE = 5e-4   # reflected rotor inertia through the gearbox, kg.m^2
 
 # ---------------------------------------------------------------- colours
 C = {
@@ -191,10 +185,6 @@ OPTICAL_RPY = (-pi / 2, 0, -pi / 2)
 
 
 # ---------------------------------------------------------------- helpers
-def cos_sin(a):
-    return cos(a), sin(a)
-
-
 def m(v):
     return " ".join(f"{x / 1000:.4f}" for x in v)
 
@@ -207,103 +197,6 @@ def walk(body):
     yield body
     for c in body.children:
         yield from walk(c)
-
-
-# ---------------------------------------------------------------- MJCF
-def mjcf():
-    out = []
-
-    def emit(body, indent):
-        p = "  " * indent
-        out.append(f'{p}<body name="{body.name}" pos="{m(body.pos)}">')
-        if body.joint is None:
-            out.append(f'{p}  <freejoint name="root"/>')
-        else:
-            j = body.joint
-            out.append(f'{p}  <joint name="{j.name}" axis="{" ".join(map(str, j.axis))}" '
-                       f'range="{j.range_deg[0]} {j.range_deg[1]}"/>')
-        for g in body.geoms:
-            half = " ".join(f"{s / 2000:.4f}" for s in g.size)
-            cls = "hidden" if g.color == "hidden" else ("foot" if g.name.endswith("foot") else "part")
-            out.append(f'{p}  <geom class="{cls}" name="{g.name}" type="box" size="{half}" '
-                       f'pos="{m(g.pos)}" mass="{g.mass / 1000:.4f}" rgba="{rgba(g.color)}"/>')
-            if cls == "foot":
-                # FSR402 heel / toe, read as MuJoCo touch sensors (see FSR_TOE_X)
-                side = g.name.split("_")[0]
-                sole_z = (g.pos[2] - g.size[2] / 2) / 1000
-                for pad, x in (("toe", FSR_TOE_X), ("heel", FSR_HEEL_X)):
-                    out.append(f'{p}  <site name="{side}_fsr_{pad}" type="box" size="0.0181 0.0215 0.003" '
-                               f'pos="{x / 1000:.4f} {g.pos[1] / 1000:.4f} {sole_z:.4f}"/>')
-        for name, parent, xyz, rpy in FRAMES:
-            if parent == body.name:
-                eul = " ".join(f"{a * 180 / pi:.3f}" for a in rpy)
-                out.append(f'{p}  <site name="{name}" pos="{m(xyz)}" euler="{eul}"/>')
-        if body.name == "head_pitch":
-            # MuJoCo rangefinders measure along the site z axis, so the ToF beam gets its own site
-            out.append(f'{p}  <site name="tof_beam" pos="{m(FRAMES[2][2])}" '
-                       f'euler="0 {90 + TOF_TILT * 180 / pi:.3f} 0"/>')
-            c, sn = cos_sin(CAM_TILT)
-            out.append(f'{p}  <camera name="head_cam" pos="{m(FRAMES[1][2])}" fovy="48.8" '
-                       f'xyaxes="0 -1 0 {sn:.4f} 0 {c:.4f}"/>')
-        for c in body.children:
-            emit(c, indent + 1)
-        out.append(f"{p}</body>")
-
-    emit(ROBOT, 2)
-    joints = [b.joint for b in walk(ROBOT) if b.joint]
-    acts = "\n".join(
-        f'    <position name="{j.name}" joint="{j.name}" kp="{KP}" '
-        f'forcerange="-{SERVOS[j.servo]["stall"]} {SERVOS[j.servo]["stall"]}" '
-        f'ctrlrange="{j.range_deg[0] * pi / 180:.4f} {j.range_deg[1] * pi / 180:.4f}"/>'
-        for j in joints)
-    sensors = "\n".join([
-        '    <framequat name="imu_quat" objtype="body" objname="base"/>',
-        '    <gyro name="imu_gyro" site="imu_link"/>',
-        '    <accelerometer name="imu_acc" site="imu_link"/>',
-        '    <rangefinder name="tof" site="tof_beam" cutoff="2.0"/>',
-        '    <subtreecom name="com" body="base"/>',
-    ] + [f'    <touch name="{side}_fsr_{pad}" site="{side}_fsr_{pad}"/>'
-         for side in ("l", "r") for pad in ("toe", "heel")])
-    body_xml = "\n".join(out)
-    return f"""<mujoco model="mini_humanoid">
-  <!-- Generated by gen_robot.py — edit that file, not this one. -->
-  <compiler angle="degree" autolimits="true"/>
-  <option timestep="0.002" integrator="implicitfast"/>
-  <visual><global offwidth="1280" offheight="720"/></visual>
-
-  <default>
-    <joint damping="{DAMPING}" armature="{ARMATURE}"/>
-    <default class="part"><geom contype="2" conaffinity="1" friction="0.8"/></default>
-    <default class="foot"><geom contype="2" conaffinity="3" friction="1.0"/></default>
-    <default class="hidden"><geom contype="0" conaffinity="0" group="3"/></default>
-  </default>
-
-  <asset>
-    <texture name="grid" type="2d" builtin="checker" width="512" height="512"
-             rgb1="0.82 0.82 0.80" rgb2="0.74 0.74 0.72"/>
-    <material name="grid" texture="grid" texrepeat="8 8" reflectance="0.05"/>
-  </asset>
-
-  <worldbody>
-    <light pos="0.3 0.3 1.2" dir="-0.3 -0.3 -1" diffuse="0.9 0.9 0.9"/>
-    <geom name="floor" type="plane" size="1 1 0.01" material="grid" contype="1" conaffinity="1"/>
-{body_xml}
-  </worldbody>
-
-  <actuator>
-{acts}
-  </actuator>
-
-  <sensor>
-{sensors}
-  </sensor>
-
-  <keyframe>
-    <key name="stand" qpos="0 0 {ROBOT.pos[2] / 1000:.4f} 1 0 0 0 {" ".join(["0"] * len(joints))}"
-         ctrl="{" ".join(["0"] * len(joints))}"/>
-  </keyframe>
-</mujoco>
-"""
 
 
 # ---------------------------------------------------------------- URDF
@@ -332,9 +225,7 @@ def urdf():
            '<!-- Generated by gen_robot.py — edit that file, not this one. -->',
            '<robot name="mini_humanoid">',
            '  <!-- Frames follow REP-103 (x forward, y left, z up) and REP-120 names (imu_link, l_sole, ...).',
-           '       base_link sits at the hip point H, 115 mm above the floor in the standing pose. -->',
-           '  <!-- MuJoCo reads this tag when the URDF is loaded directly; other tools ignore it. -->',
-           '  <mujoco><compiler discardvisual="false" fusestatic="false" balanceinertia="true"/></mujoco>']
+           '       base_link sits at the hip point H, 115 mm above the floor in the standing pose. -->']
     mats = set()
     for b in walk(ROBOT):
         for g in b.geoms:
@@ -393,7 +284,7 @@ def _noise(sd):
 
 
 def gz_xacro():
-    body = [ln for ln in urdf().splitlines()[3:-1] if "<mujoco>" not in ln and "MuJoCo reads" not in ln]
+    body = urdf().splitlines()[3:-1]
     joints = [b.joint for b in walk(ROBOT) if b.joint]
     ctrl = "\n".join(
         f'    <joint name="{j.name}"><command_interface name="position"/>'
@@ -407,6 +298,8 @@ def gz_xacro():
      Mico for Gazebo Harmonic (gz-sim) + ros2_control. Same links, joints and frames as humanoid.urdf. -->
 <robot name="mico" xmlns:xacro="http://www.ros.org/wiki/xacro">
   <xacro:arg name="controllers" default="$(find humanoid_description)/config/mico_controllers.yaml"/>
+  <!-- camera:=false skips the rendered head camera (no GPU in the VM, or a faster headless run) -->
+  <xacro:arg name="camera" default="true"/>
 {chr(10).join(body)}
 
   <ros2_control name="mico" type="system">
@@ -419,8 +312,10 @@ def gz_xacro():
       <parameters>$(arg controllers)</parameters>
     </plugin>
     <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu"/>
-    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
-      <render_engine>ogre2</render_engine>
+    <!-- ground-truth odom -> base_link for Foxglove / RViz (the real robot will estimate this from the IMU) -->
+    <plugin filename="gz-sim-odometry-publisher-system" name="gz::sim::systems::OdometryPublisher">
+      <odom_frame>odom</odom_frame><robot_base_frame>base_link</robot_base_frame><dimensions>3</dimensions>
+      <odom_publish_frequency>50</odom_publish_frequency>
     </plugin>
   </gazebo>
 
@@ -429,6 +324,14 @@ def gz_xacro():
       <always_on>1</always_on><update_rate>200</update_rate><topic>imu</topic><gz_frame_id>imu_link</gz_frame_id>
       <imu><angular_velocity>{axes}</angular_velocity><linear_acceleration>{lin}</linear_acceleration></imu>
     </sensor>
+  </gazebo>
+
+  <!-- rendered sensors (camera, ToF) need ogre2; camera:=false skips them on machines without a GPU -->
+  <xacro:if value="$(arg camera)">
+  <gazebo>
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
   </gazebo>
 
   <gazebo reference="camera_link">
@@ -445,9 +348,11 @@ def gz_xacro():
     <sensor name="tof" type="gpu_lidar">
       <always_on>1</always_on><update_rate>30</update_rate><topic>tof</topic><gz_frame_id>tof_link</gz_frame_id>
       <lidar><scan><horizontal><samples>1</samples><resolution>1</resolution>
-        <min_angle>0</min_angle><max_angle>0</max_angle></horizontal></scan><range><min>0.03</min><max>2.0</max><resolution>0.001</resolution></range></lidar>
+        <min_angle>0</min_angle><max_angle>0</max_angle></horizontal></scan>
+        <range><min>0.03</min><max>2.0</max><resolution>0.001</resolution></range></lidar>
     </sensor>
   </gazebo>
+  </xacro:if>
 
 {feet}
 </robot>
@@ -456,11 +361,10 @@ def gz_xacro():
 
 if __name__ == "__main__":
     here = Path(__file__).parent
-    (here / "humanoid.xml").write_text(mjcf(), encoding="utf-8")
     (here / "humanoid.urdf").write_text(urdf(), encoding="utf-8")
     desc = here.parents[1] / "src" / "humanoid_description" / "urdf"
     if desc.is_dir():
         (desc / "mico.urdf.xacro").write_text(gz_xacro(), encoding="utf-8")
     joints = [b.joint for b in walk(ROBOT) if b.joint]
     mass = sum(g.mass for b in walk(ROBOT) for g in b.geoms)
-    print(f"wrote humanoid.xml + humanoid.urdf: {len(joints)} joints, {mass:.0f} g")
+    print(f"wrote humanoid.urdf + mico.urdf.xacro: {len(joints)} joints, {mass:.0f} g")
