@@ -36,6 +36,40 @@ python kin_dyn.py                           # kiểm DH, sinh tables/*.csv
 Trong viewer: nhấn **Space** để tạm dừng, **Backspace** để reset, bật **Contact force**
 ở tab Rendering để thấy lực chân.
 
+## Hệ trục: URDF, MuJoCo, Gazebo
+
+`gen_robot.py` sinh cả ba từ cùng một cây khớp, nên mọi khung trùng nhau tuyệt đối:
+
+| File | Dùng cho |
+| --- | --- |
+| `humanoid.xml` | MuJoCo (MJCF), có IMU, ToF (`rangefinder`), camera `head_cam`, 4 FSR |
+| `humanoid.urdf` | ROS / RViz / Foxglove; MuJoCo cũng nạp thẳng được (`mujoco.MjModel.from_xml_path`) |
+| `src/humanoid_description/urdf/mico.urdf.xacro` | Gazebo Harmonic: cảm biến IMU, camera, ToF + `gz_ros2_control` 20 khớp |
+
+Quy ước: REP-103 (x tới trước, y sang trái, z lên trên), tên khung theo REP-120. `base_link` nằm ở điểm hông H,
+cách sàn 115 mm khi đứng thẳng. Khung cảm biến:
+
+| Khung | Gắn vào | Vị trí so với khung cha (mm) | Ghi chú |
+| --- | --- | --- | --- |
+| `imu_link` | `base_link` | 0, 0, 30 (cao 145 mm so với sàn) | MPU6050 trên tấm đỉnh hông, trục chip trùng trục robot |
+| `camera_link` → `camera_optical_frame` | `head_pitch_link` | 31, 0, 42, chúi 15° | khung quang học: z nhìn tới, x sang phải, y xuống |
+| `tof_link` | `head_pitch_link` | 31, 8, 45, chúi 20° | VL53L0X, tia dọc trục x |
+| `l_mic_link`, `r_mic_link` | `head_pitch_link` | 2, ±38,5, 24 | x hướng ra ngoài tai |
+| `l_sole`, `r_sole` | `*_ankle_roll_link` | 0, 0, −25 | trên mặt sàn, ngay dưới trục cổ chân A |
+| `l_gripper`, `r_gripper` | `*_elbow_link` | 0, 0, −44 | tâm tay kẹp |
+
+IMU đứng yên đo gia tốc (0; 0; +9,81) m/s² trong `imu_link` — firmware MPU6050 phải xuất đúng chiều này
+(gắn mạch GY-521 mặt linh kiện lên trên, mũi tên X của mạch chỉ về phía trước robot; lắp khác thì sửa `rpy`
+của `imu_link` trong `gen_robot.py`).
+
+Kiểm tra: `python check_urdf.py` đọc URDF bằng `urdf_parser_py`, so động học thuận URDF với MJCF trên 200 tư thế
+ngẫu nhiên (sai số 0,0000 mm), và nạp URDF vào MuJoCo.
+
+Gazebo (ROS 2 Jazzy + Gazebo Harmonic, trên Ubuntu): `colcon build --packages-select humanoid_description`, rồi
+`ros2 launch humanoid_description mico_gz.launch.py`. Topic ra: `/imu`, `/camera/image_raw`, `/tof`, `/joint_states`;
+lệnh khớp gửi vào `/position_controller/commands` (20 góc, đúng thứ tự trong `config/mico_controllers.yaml`).
+Bản Gazebo chưa được chạy thử trong môi trường này, mới kiểm tra ở mức xacro và trình đọc URDF.
+
 ## Xem trong Foxglove
 
 Cách chắc chắn nhất là qua ROS 2 (cùng stack sẽ chạy trên Radxa):
