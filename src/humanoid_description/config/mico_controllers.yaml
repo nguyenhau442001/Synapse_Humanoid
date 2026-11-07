@@ -1,5 +1,8 @@
 # ros2_control for Mico (20 DoF) in Gazebo Harmonic via gz_ros2_control.
-# Joint names match sim/mini_humanoid/gen_robot.py, humanoid.xml (MuJoCo) and mico.urdf.xacro.
+# Joint names match sim/mini_humanoid/gen_robot.py and mico.urdf.xacro.
+# joint_trajectory_controller (active): mico_gait.py sends the whole demo as one JointTrajectory, interpolated in the
+#   controller loop on sim time, so every run is identical.
+# position_controller (loaded inactive): stream raw targets on /position_controller/commands, e.g. for teleop.
 controller_manager:
   ros__parameters:
     update_rate: 200
@@ -7,6 +10,9 @@ controller_manager:
 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
+
+    joint_trajectory_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
 
     position_controller:
       type: position_controllers/JointGroupPositionController
@@ -34,3 +40,34 @@ position_controller:
       - r_elbow
       - neck_yaw
       - head_pitch
+
+joint_trajectory_controller:
+  ros__parameters:
+    joints:
+      - l_hip_yaw
+      - l_hip_roll
+      - l_hip_pitch
+      - l_knee
+      - l_ankle_pitch
+      - l_ankle_roll
+      - r_hip_yaw
+      - r_hip_roll
+      - r_hip_pitch
+      - r_knee
+      - r_ankle_pitch
+      - r_ankle_roll
+      - l_shoulder_pitch
+      - l_shoulder_roll
+      - l_elbow
+      - r_shoulder_pitch
+      - r_shoulder_roll
+      - r_elbow
+      - neck_yaw
+      - head_pitch
+    command_interfaces: [position]
+    state_interfaces: [position, velocity]
+    interpolation_method: splines
+    allow_nonzero_velocity_at_trajectory_end: true
+    constraints:
+      goal_time: 0.0
+      stopped_velocity_tolerance: 0.0
