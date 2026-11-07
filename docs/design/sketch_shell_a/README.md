@@ -13,7 +13,7 @@ mic grilles, each foot has heel and toe FSRs, the neck sits in an orange collar 
 
 ## Mechanical skeleton v2.1
 
-Drawn from the MuJoCo model, J01–J20 with every axis, with the Mico shell overlaid to check the fit.
+Drawn from the robot model (gen_robot.py), J01–J20 with every axis, with the Mico shell overlaid to check the fit.
 Open items from the fit check: arms sit inside the torso shell (shoulder-roll offset 5 → 13 mm proposed),
 elbow and hip/ankle-roll housings need room, and the 2.42″ OLED plus the camera board do not fit the head.
 
