@@ -28,6 +28,9 @@ SERVOS = {
 }
 LEG_HEAVY = os.environ.get("LEG_HEAVY", "MG92B")
 LEG_SERVO = {}
+# Feet sit 6 mm outboard of the ankle axis: with them centred the two soles (42 wide, 44 apart)
+# rubbed together while walking and turning. 6 mm leaves >= 3.8 mm clearance in demo.py.
+FOOT_OUT = 6.0
 # Foot FSRs (FSR402, heel + toe). Box-plane contacts sit at the sole corners, so each touch
 # site covers half the sole and sums the force on that half: front half = toe, rear half = heel.
 FSR_TOE_X = 28.0    # site centre, mm forward of the ankle axis
@@ -119,7 +122,8 @@ def leg(side):
                         [Body(f"{side}_ankle_roll", (0, 0, 0),
                             Joint(f"{side}_ankle_roll", (1, 0, 0), (-30, 30), J("ankle_roll")),
                             [sv(f"{side}_ankle_roll_servo", J("ankle_roll"), (-14, 0, -2), "y"),
-                             Geom(f"{side}_foot", (72, 42, 8), (10, 0, -(ANKLE_Z - 4)), 12, "frame")])])])])])])
+                             Geom(f"{side}_foot", (72, 42, 8), (10, FOOT_OUT * s, -(ANKLE_Z - 4)), 12,
+                                  "frame")])])])])])])
 
 
 def arm(side):
@@ -205,7 +209,7 @@ def mjcf():
                 sole_z = (g.pos[2] - g.size[2] / 2) / 1000
                 for pad, x in (("toe", FSR_TOE_X), ("heel", FSR_HEEL_X)):
                     out.append(f'{p}  <site name="{side}_fsr_{pad}" type="box" size="0.0181 0.0215 0.003" '
-                               f'pos="{x / 1000:.4f} 0 {sole_z:.4f}"/>')
+                               f'pos="{x / 1000:.4f} {g.pos[1] / 1000:.4f} {sole_z:.4f}"/>')
         for c in body.children:
             emit(c, indent + 1)
         out.append(f"{p}</body>")
@@ -237,7 +241,7 @@ def mjcf():
   <default>
     <joint damping="{DAMPING}" armature="{ARMATURE}"/>
     <default class="part"><geom contype="2" conaffinity="1" friction="0.8"/></default>
-    <default class="foot"><geom contype="2" conaffinity="1" friction="1.0"/></default>
+    <default class="foot"><geom contype="2" conaffinity="3" friction="1.0"/></default>
     <default class="hidden"><geom contype="0" conaffinity="0" group="3"/></default>
   </default>
 

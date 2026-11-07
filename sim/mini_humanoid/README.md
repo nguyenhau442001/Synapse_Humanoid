@@ -53,6 +53,8 @@ không cần file mesh.
 
 ## Kết quả kiểm tra
 
+- Va chạm giữa hai bàn chân được bật. Bàn chân đặt lệch ra ngoài trục cổ chân 6 mm; khi còn đặt giữa,
+  hai đế (rộng 42, cách nhau 44) cọ vào nhau suốt lúc đi và xoay (lún 3,7 mm). Giờ khe hở nhỏ nhất là 3,8 mm.
 - Cảm biến bàn chân `l_fsr_toe`, `l_fsr_heel`, `r_fsr_toe`, `r_fsr_heel` (FSR402): khi đứng yên tổng bốn cảm biến
   bằng đúng trọng lượng 5,25 N; gót 1,73 N, mũi 0,90 N mỗi chân.
 

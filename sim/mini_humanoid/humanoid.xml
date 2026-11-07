@@ -7,7 +7,7 @@
   <default>
     <joint damping="0.02" armature="0.0005"/>
     <default class="part"><geom contype="2" conaffinity="1" friction="0.8"/></default>
-    <default class="foot"><geom contype="2" conaffinity="1" friction="1.0"/></default>
+    <default class="foot"><geom contype="2" conaffinity="3" friction="1.0"/></default>
     <default class="hidden"><geom contype="0" conaffinity="0" group="3"/></default>
   </default>
 
@@ -52,9 +52,9 @@
                 <body name="l_ankle_roll" pos="0.0000 0.0000 0.0000">
                   <joint name="l_ankle_roll" axis="1 0 0" range="-30 30"/>
                   <geom class="part" name="l_ankle_roll_servo" type="box" size="0.0060 0.0114 0.0155" pos="-0.0140 0.0000 -0.0020" mass="0.0140" rgba="0.36 0.56 0.9 1"/>
-                  <geom class="foot" name="l_foot" type="box" size="0.0360 0.0210 0.0040" pos="0.0100 0.0000 -0.0210" mass="0.0120" rgba="0.88 0.88 0.86 1"/>
-                  <site name="l_fsr_toe" type="box" size="0.0181 0.0215 0.003" pos="0.0280 0 -0.0250"/>
-                  <site name="l_fsr_heel" type="box" size="0.0181 0.0215 0.003" pos="-0.0080 0 -0.0250"/>
+                  <geom class="foot" name="l_foot" type="box" size="0.0360 0.0210 0.0040" pos="0.0100 0.0060 -0.0210" mass="0.0120" rgba="0.88 0.88 0.86 1"/>
+                  <site name="l_fsr_toe" type="box" size="0.0181 0.0215 0.003" pos="0.0280 0.0060 -0.0250"/>
+                  <site name="l_fsr_heel" type="box" size="0.0181 0.0215 0.003" pos="-0.0080 0.0060 -0.0250"/>
                 </body>
               </body>
             </body>
@@ -81,9 +81,9 @@
                 <body name="r_ankle_roll" pos="0.0000 0.0000 0.0000">
                   <joint name="r_ankle_roll" axis="1 0 0" range="-30 30"/>
                   <geom class="part" name="r_ankle_roll_servo" type="box" size="0.0060 0.0114 0.0155" pos="-0.0140 0.0000 -0.0020" mass="0.0140" rgba="0.36 0.56 0.9 1"/>
-                  <geom class="foot" name="r_foot" type="box" size="0.0360 0.0210 0.0040" pos="0.0100 0.0000 -0.0210" mass="0.0120" rgba="0.88 0.88 0.86 1"/>
-                  <site name="r_fsr_toe" type="box" size="0.0181 0.0215 0.003" pos="0.0280 0 -0.0250"/>
-                  <site name="r_fsr_heel" type="box" size="0.0181 0.0215 0.003" pos="-0.0080 0 -0.0250"/>
+                  <geom class="foot" name="r_foot" type="box" size="0.0360 0.0210 0.0040" pos="0.0100 -0.0060 -0.0210" mass="0.0120" rgba="0.88 0.88 0.86 1"/>
+                  <site name="r_fsr_toe" type="box" size="0.0181 0.0215 0.003" pos="0.0280 -0.0060 -0.0250"/>
+                  <site name="r_fsr_heel" type="box" size="0.0181 0.0215 0.003" pos="-0.0080 -0.0060 -0.0250"/>
                 </body>
               </body>
             </body>
