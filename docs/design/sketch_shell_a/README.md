@@ -11,6 +11,16 @@ mic grilles, each foot has heel and toe FSRs, the neck sits in an orange collar 
 
 ![Mico expressions](images/mico_faces.png)
 
+## Mechanical skeleton v2.1
+
+Drawn from the MuJoCo model, J01–J20 with every axis, with the Mico shell overlaid to check the fit.
+Open items from the fit check: arms sit inside the torso shell (shoulder-roll offset 5 → 13 mm proposed),
+elbow and hip/ankle-roll housings need room, and the 2.42″ OLED plus the camera board do not fit the head.
+
+![Mechanical skeleton](images/skeleton.png)
+
+![Skeleton details](images/skeleton_details.png)
+
 ## Hero family
 
 | A1 · Hero | A3 · Pico | A4 · Luno | A5 · Kiko |
@@ -46,6 +56,8 @@ Pauldrons widen it to about 132 mm (A: 119) and must ride on the upper arm so sh
 | `A2_Mico.dc.html` | **Main shell** · Mico v2.0 |
 | `Mico_Views.dc.html` | Mico side, rear and foot underside (FSR pads) |
 | `Mico_Faces.dc.html` | Mico expression set on the OLED |
+| `Skeleton.dc.html` | v2.1 mechanical skeleton J01–J20, front / side / rear, fit check |
+| `Skeleton_Details.dc.html` | J01–J20 table, head packaging and sensor view, foot, pelvis, arm |
 | `Main.dc.html` | A1 · Hero front view, with part sizes and joint heights |
 | `A3_Pico.dc.html`, `A4_Luno.dc.html`, `A5_Kiko.dc.html` | Hero family variants |
 | `ShellB.dc.html` | Shell B (villain) armor, front and side |
