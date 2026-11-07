@@ -1,4 +1,4 @@
-# Mini humanoid 20 DoF — mô hình mô phỏng v0.6
+# Mini humanoid 20 DoF (Mico) — mô hình mô phỏng v0.7
 
 Mô hình hộp (box) dựng từ đúng kích thước và khối lượng trong tài liệu thiết kế:
 cao 303 mm, nặng ~536 g, trọng tâm cao ~138 mm. Servo chọn theo tải từng khớp, toàn bộ mua được ở TP.HCM:
@@ -12,39 +12,64 @@ cao 303 mm, nặng ~536 g, trọng tâm cao ~138 mm. Servo chọn theo tải t�
 Thay đổi so với v0.5: chân dùng MG92B (bán trong nước) thay cho Corona DS843MG (phải nhập),
 nặng hơn 55 g. Muốn so sánh với DS843MG: `LEG_HEAVY=DS843MG python gen_robot.py`.
 
+Mô phỏng chạy bằng **ROS 2 Jazzy + Gazebo Harmonic** trong máy ảo Ubuntu (OrbStack trên Mac), xem bằng
+**Foxglove** trên Mac. MuJoCo đã bỏ.
+
 | File | Dùng cho |
 | --- | --- |
-| `gen_robot.py` | Nguồn duy nhất: sửa kích thước/khối lượng ở đây rồi chạy lại để sinh 2 file dưới |
-| `humanoid.xml` | MuJoCo (MJCF): 20 position actuator có giới hạn lực, IMU, 4 cảm biến lực bàn chân (gót, mũi), keyframe `stand` |
-| `humanoid.urdf` | Foxglove / RViz / ROS 2 (`robot_description`) |
-| `demo.py` | Đi thẳng 8 bước → xoay trái 60° → vẫy tay; `--check` in báo cáo tải servo |
-| `kin_dyn.py` | Bảng DH 5 chuỗi + kiểm FK với MuJoCo, bảng khâu và bảng khớp → `tables/*.csv` |
+| `gen_robot.py` | Nguồn duy nhất: sửa kích thước/khối lượng ở đây rồi chạy lại để sinh URDF và xacro Gazebo |
+| `humanoid.urdf` | Foxglove / RViz / ROS 2 (`robot_description`), không cần Gazebo |
+| `../../src/humanoid_description/urdf/mico.urdf.xacro` | Gazebo: `gz_ros2_control` 20 khớp, IMU, camera, ToF, odometry |
+| `../../src/humanoid_control/scripts/mico_gait.py` | Dáng đi: 8 bước → xoay trái 60° → vẫy tay, gửi một `JointTrajectory` |
+| `check_gz.py` | Chạy kèm Gazebo: có ngã không, đi được bao xa, tải từng servo so với lực kẹt |
+| `kin_dyn.py` | Bảng DH 5 chuỗi + kiểm FK với URDF, bảng khâu, tải tĩnh, gộp tải đo trong Gazebo → `tables/*.csv` |
+| `check_urdf.py` | URDF, xacro, YAML controller và dáng đi khớp nhau (tên khớp, thứ tự, cảm biến, khung) |
 
-## Chạy trên Mac
+## Chạy: Gazebo trong OrbStack, xem bằng Foxglove trên Mac
 
 ```zsh
-python3 -m venv ~/humanoid-venv && source ~/humanoid-venv/bin/activate
-pip install mujoco numpy
+# trên Mac, một lần: tạo máy Ubuntu 24.04, cài ROS 2 Jazzy + Gazebo Harmonic, build workspace
+./setup_orbstack.sh
 
-python gen_robot.py                         # sinh lại humanoid.xml + humanoid.urdf
-python -m mujoco.viewer --mjcf=humanoid.xml # xem mô hình, kéo từng khớp ở panel Control
-mjpython demo.py                            # xem robot đi + xoay (trên macOS phải dùng mjpython)
-python demo.py --check                      # chạy không cửa sổ, in báo cáo
-python kin_dyn.py                           # kiểm DH, sinh tables/*.csv
+# trong máy ảo (orb -m synapse-humanoid), ở thư mục repo
+source /opt/ros/jazzy/setup.bash
+colcon build --symlink-install && source install/setup.bash
+ros2 launch humanoid_description mico_gz.launch.py gait:=true
 ```
 
-Trong viewer: nhấn **Space** để tạm dừng, **Backspace** để reset, bật **Contact force**
-ở tab Rendering để thấy lực chân.
+Gazebo chạy không giao diện (server + `--headless-rendering`). `foxglove_bridge` mở cổng 8765 trong máy ảo,
+OrbStack chuyển cổng ra Mac: mở Foxglove → Open connection → `ws://localhost:8765`.
 
-## Hệ trục: URDF, MuJoCo, Gazebo
+Trong panel **3D**: chọn display frame `odom` để thấy robot đi trên sàn (`/tf` có `odom → base_link` từ Gazebo
+và các khớp từ `robot_state_publisher`). Thêm panel **Image** cho `/camera/image_raw`, **Plot** cho
+`/imu.linear_acceleration.z` hoặc `/joint_states.effort[...]`.
 
-`gen_robot.py` sinh cả ba từ cùng một cây khớp, nên mọi khung trùng nhau tuyệt đối:
+Tham số launch:
 
-| File | Dùng cho |
-| --- | --- |
-| `humanoid.xml` | MuJoCo (MJCF), có IMU, ToF (`rangefinder`), camera `head_cam`, 4 FSR |
-| `humanoid.urdf` | ROS / RViz / Foxglove; MuJoCo cũng nạp thẳng được (`mujoco.MjModel.from_xml_path`) |
-| `src/humanoid_description/urdf/mico.urdf.xacro` | Gazebo Harmonic: cảm biến IMU, camera, ToF + `gz_ros2_control` 20 khớp |
+| Tham số | Mặc định | Ý nghĩa |
+| --- | --- | --- |
+| `gait` | `false` | chạy `mico_gait.py` sau khi controller sẵn sàng |
+| `camera` | `true` | mô phỏng camera đầu và ToF (cần render; máy không có GPU thì đặt `false`, IMU vẫn chạy) |
+| `foxglove` | `true` | bật `foxglove_bridge` |
+| `gui` | `false` | mở giao diện Gazebo (cần màn hình, không dùng trong OrbStack) |
+
+Topic: `/joint_states`, `/imu`, `/odom`, `/tf`, `/camera/image_raw`, `/tof`, `/clock`.
+Điều khiển: `joint_trajectory_controller` (đang bật) nhận `/joint_trajectory_controller/joint_trajectory`;
+`position_controller` (nạp sẵn, tắt) nhận 20 góc trên `/position_controller/commands` khi cần gửi lệnh liên tục.
+
+Kiểm tra không cần nhìn (mở terminal thứ hai trong máy ảo):
+
+```zsh
+ros2 launch humanoid_description mico_gz.launch.py camera:=false foxglove:=false gait:=true
+python3 sim/mini_humanoid/check_gz.py     # ~38 s thời gian mô phỏng, ghi tables/gz_servo_loads.csv
+python3 sim/mini_humanoid/kin_dyn.py      # chỉ cần numpy, gộp bảng tải Gazebo vào tables/joints_kin_dyn.csv
+python3 sim/mini_humanoid/check_urdf.py   # không cần gì ngoài Python
+```
+
+## Hệ trục: URDF và Gazebo
+
+`gen_robot.py` sinh cả hai từ cùng một cây khớp, nên mọi khung trùng nhau tuyệt đối
+(`check_urdf.py` so từng khớp, giới hạn và khung).
 
 Quy ước: REP-103 (x tới trước, y sang trái, z lên trên), tên khung theo REP-120. `base_link` nằm ở điểm hông H,
 cách sàn 115 mm khi đứng thẳng. Khung cảm biến:
@@ -62,50 +87,43 @@ IMU đứng yên đo gia tốc (0; 0; +9,81) m/s² trong `imu_link` — firmware
 (gắn mạch GY-521 mặt linh kiện lên trên, mũi tên X của mạch chỉ về phía trước robot; lắp khác thì sửa `rpy`
 của `imu_link` trong `gen_robot.py`).
 
-Kiểm tra: `python check_urdf.py` đọc URDF bằng `urdf_parser_py`, so động học thuận URDF với MJCF trên 200 tư thế
-ngẫu nhiên (sai số 0,0000 mm), và nạp URDF vào MuJoCo.
-
-Gazebo (ROS 2 Jazzy + Gazebo Harmonic, trên Ubuntu): `colcon build --packages-select humanoid_description`, rồi
-`ros2 launch humanoid_description mico_gz.launch.py`. Topic ra: `/imu`, `/camera/image_raw`, `/tof`, `/joint_states`;
-lệnh khớp gửi vào `/position_controller/commands` (20 góc, đúng thứ tự trong `config/mico_controllers.yaml`).
-Bản Gazebo chưa được chạy thử trong môi trường này, mới kiểm tra ở mức xacro và trình đọc URDF.
-
-## Xem trong Foxglove
-
-Cách chắc chắn nhất là qua ROS 2 (cùng stack sẽ chạy trên Radxa):
+Xem riêng mô hình, không cần Gazebo:
 
 ```zsh
-ros2 run robot_state_publisher robot_state_publisher --ros-args \
-  -p robot_description:="$(cat humanoid.urdf)"
-ros2 run joint_state_publisher_gui joint_state_publisher_gui   # thanh trượt 20 khớp
+ros2 run robot_state_publisher robot_state_publisher --ros-args -p robot_description:="$(cat humanoid.urdf)"
+ros2 run joint_state_publisher_gui joint_state_publisher_gui   # thanh trượt 20 khớp (cần màn hình)
 ros2 launch foxglove_bridge foxglove_bridge_launch.xml
 ```
 
-Mở Foxglove → Open connection → `ws://localhost:8765` → panel **3D**: robot hiện từ topic
-`/robot_description` + `/tf`, kéo thanh trượt để cử động. URDF chỉ dùng hình hộp,
-không cần file mesh.
+## Kết quả kiểm tra (Gazebo Harmonic 8, ROS 2 Jazzy, DART, bước 1 ms)
 
-## Kết quả kiểm tra
+- `check_gz.py`, dáng đi đầy đủ, `camera:=false`: không ngã, đi tới 187–190 mm, xoay +60…61° (mục tiêu 60°),
+  thân nghiêng tối đa 7–12°, hông thấp nhất 112 mm. Bốn lần chạy liên tiếp đều đứng vững.
+- IMU đứng yên đo +9,80 m/s² trên trục z.
+- Tải servo trong lúc đi (phân vị 99): cổ chân pitch 49% lực kẹt, hông roll 46%, gối 39%. Hông roll vượt
+  mức liên tục (1/3 lực kẹt) khoảng 7–8 s trong 36 s bài chạy, vì giữ thân nghiêng suốt pha một chân.
+  Đây là khớp cần theo dõi nhiệt độ trên robot thật.
+- `kin_dyn.py`: động học thuận từ bảng DH khớp với URDF, sai số 0,000 mm trên 300 tư thế ngẫu nhiên.
+  Tải tĩnh lớn nhất: hông roll khi đứng một chân 0,83 kg·cm, gối khi ngồi xổm 0,57 kg·cm.
+- Va chạm giữa hai bàn chân được bật. Bàn chân đặt lệch ra ngoài trục cổ chân 6 mm (khe hở nhỏ nhất 3,8 mm).
 
-- Va chạm giữa hai bàn chân được bật. Bàn chân đặt lệch ra ngoài trục cổ chân 6 mm; khi còn đặt giữa,
-  hai đế (rộng 42, cách nhau 44) cọ vào nhau suốt lúc đi và xoay (lún 3,7 mm). Giờ khe hở nhỏ nhất là 3,8 mm.
-- Cảm biến bàn chân `l_fsr_toe`, `l_fsr_heel`, `r_fsr_toe`, `r_fsr_heel` (FSR402): khi đứng yên tổng bốn cảm biến
-  bằng đúng trọng lượng 5,25 N; gót 1,73 N, mũi 0,90 N mỗi chân.
+Bài học khi chuyển sang Gazebo:
 
-- `demo.py --check`: đi 8 bước tiến 167 mm, xoay 62° (mục tiêu 60°), thân nghiêng tối đa 6,5°, không ngã.
-  Hông roll là khớp căng nhất: đỉnh 38% lực kẹt, vượt mức liên tục (1/3) khoảng 1 s trong cả bài chạy;
-  gối 35%. Các khớp khác dưới 1/3.
-- `kin_dyn.py`: động học thuận từ bảng DH khớp với MuJoCo, sai số 0,0 mm trên 300 tư thế ngẫu nhiên.
-  Hệ số dư nhỏ nhất (mức liên tục / mô-men cần) ở ca đứng một chân khi ngồi thấp: hông roll 0,89, gối 0,94,
-  vai pitch phải 1,20. Dưới 1 nghĩa là không nên giữ tư thế đó lâu; dáng đi hiện tại chỉ đứng một chân ngắn.
+- Gửi góc từ node Python 100 Hz (`/position_controller/commands`) làm mỗi lần chạy một khác, có lần ngã:
+  lệnh tới lệch nhịp với vòng vật lý, chân chạm đất bị giật. Gửi cả bài thành một `JointTrajectory` cho
+  `joint_trajectory_controller` (nội suy trong vòng ros2_control theo giờ mô phỏng) thì lần nào cũng như nhau,
+  và tải đỉnh giảm từ ~100% xuống dưới 50% lực kẹt.
+- Bước xoay chậm lại: 4 × 15°, mỗi bước 2,0 s (thay vì 3 × 20°, 1,6 s). Bàn chân trụ xoay dưới tải dễ trượt
+  trong mô hình tiếp xúc của Gazebo.
+- Camera và ToF cần render (ogre2). Máy ảo không có GPU vẫn chạy được với `--headless-rendering` nếu có EGL
+  (Mesa); không được thì đặt `camera:=false`.
 
 ## Thông số có thể chỉnh
 
-- `gen_robot.py`: `KP = 8` (độ cứng servo, N·m/rad), `DAMPING = 0.02`, `ARMATURE = 5e-4`,
-  `HIP_Z`, `THIGH`, `SHIN`, `ANKLE_Z`. KP là ước lượng — khi có servo thật, đo độ lệch góc
-  dưới tải để chỉnh cho khớp.
-- `demo.py`: `STEP` (24 mm), `LIFT` (10 mm), `SWAY` (0,20 rad), `LEAN` (−0,10 rad),
-  `T_STEP` (1,6 s), `H0` (87 mm), `TURN` (20° mỗi cặp bước), `TURN_PAIRS` (3).
+- `gen_robot.py`: `DAMPING = 0.02`, `FOOT_OUT`, `HIP_Z`, `THIGH`, `SHIN`, `ANKLE_Z`, `LEG_HEAVY`.
+- `mico_gait.py`: `STEP` (24 mm), `LIFT` (10 mm), `SWAY` (0,20 rad), `LEAN` (−0,10 rad),
+  `T_STEP` (1,6 s), `H0` (87 mm), `TURN` (15° mỗi cặp bước), `TURN_PAIRS` (4), `T_TURN_STEP` (2,0 s).
+- `config/mico_controllers.yaml`: `update_rate` 200 Hz của controller_manager.
 
 ## Quy ước dấu khớp
 
