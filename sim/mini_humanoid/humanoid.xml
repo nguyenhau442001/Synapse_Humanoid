@@ -22,7 +22,6 @@
     <geom name="floor" type="plane" size="1 1 0.01" material="grid" contype="1" conaffinity="1"/>
     <body name="base" pos="0.0000 0.0000 0.1150">
       <freejoint name="root"/>
-      <site name="imu" pos="0 0 0.050"/>
       <geom class="part" name="pelvis" type="box" size="0.0200 0.0340 0.0180" pos="0.0000 0.0000 0.0210" mass="0.0100" rgba="0.88 0.88 0.86 1"/>
       <geom class="part" name="torso_shell" type="box" size="0.0230 0.0370 0.0360" pos="0.0000 0.0000 0.0740" mass="0.0200" rgba="0.95 0.95 0.93 1"/>
       <geom class="part" name="battery_2s" type="box" size="0.0150 0.0280 0.0095" pos="0.0000 0.0000 0.0495" mass="0.0570" rgba="0.93 0.55 0.42 1"/>
@@ -32,6 +31,7 @@
       <geom class="part" name="r_shoulder_pitch_servo" type="box" size="0.0061 0.0114 0.0143" pos="0.0000 -0.0235 0.0960" mass="0.0134" rgba="0.3 0.36 0.52 1"/>
       <geom class="part" name="neck_yaw_servo" type="box" size="0.0061 0.0145 0.0115" pos="0.0000 0.0000 0.0980" mass="0.0090" rgba="0.45 0.7 0.95 1"/>
       <geom class="hidden" name="wiring" type="box" size="0.0150 0.0250 0.0200" pos="0.0000 0.0000 0.0580" mass="0.0300" rgba="0 0 0 0"/>
+      <site name="imu_link" pos="0.0000 0.0000 0.0300" euler="0.000 0.000 0.000"/>
       <body name="l_hip_yaw" pos="0.0000 0.0220 0.0000">
         <joint name="l_hip_yaw" axis="0 0 1" range="-45 45"/>
         <geom class="part" name="l_hip_yaw_servo" type="box" size="0.0061 0.0143 0.0114" pos="0.0000 0.0000 0.0220" mass="0.0134" rgba="0.3 0.36 0.52 1"/>
@@ -55,6 +55,7 @@
                   <geom class="foot" name="l_foot" type="box" size="0.0360 0.0210 0.0040" pos="0.0100 0.0060 -0.0210" mass="0.0120" rgba="0.88 0.88 0.86 1"/>
                   <site name="l_fsr_toe" type="box" size="0.0181 0.0215 0.003" pos="0.0280 0.0060 -0.0250"/>
                   <site name="l_fsr_heel" type="box" size="0.0181 0.0215 0.003" pos="-0.0080 0.0060 -0.0250"/>
+                  <site name="l_sole" pos="0.0000 0.0000 -0.0250" euler="0.000 0.000 0.000"/>
                 </body>
               </body>
             </body>
@@ -84,6 +85,7 @@
                   <geom class="foot" name="r_foot" type="box" size="0.0360 0.0210 0.0040" pos="0.0100 -0.0060 -0.0210" mass="0.0120" rgba="0.88 0.88 0.86 1"/>
                   <site name="r_fsr_toe" type="box" size="0.0181 0.0215 0.003" pos="0.0280 -0.0060 -0.0250"/>
                   <site name="r_fsr_heel" type="box" size="0.0181 0.0215 0.003" pos="-0.0080 -0.0060 -0.0250"/>
+                  <site name="r_sole" pos="0.0000 0.0000 -0.0250" euler="0.000 0.000 0.000"/>
                 </body>
               </body>
             </body>
@@ -102,6 +104,7 @@
             <geom class="part" name="l_elbow_servo" type="box" size="0.0115 0.0061 0.0145" pos="0.0000 0.0000 0.0000" mass="0.0090" rgba="0.45 0.7 0.95 1"/>
             <geom class="part" name="l_forearm" type="box" size="0.0070 0.0070 0.0190" pos="0.0000 0.0000 -0.0190" mass="0.0020" rgba="0.95 0.95 0.93 1"/>
             <geom class="part" name="l_hand" type="box" size="0.0070 0.0070 0.0070" pos="0.0000 0.0000 -0.0440" mass="0.0015" rgba="0.95 0.95 0.93 1"/>
+            <site name="l_gripper" pos="0.0000 0.0000 -0.0440" euler="0.000 0.000 0.000"/>
           </body>
         </body>
       </body>
@@ -117,6 +120,7 @@
             <geom class="part" name="r_elbow_servo" type="box" size="0.0115 0.0061 0.0145" pos="0.0000 0.0000 0.0000" mass="0.0090" rgba="0.45 0.7 0.95 1"/>
             <geom class="part" name="r_forearm" type="box" size="0.0070 0.0070 0.0190" pos="0.0000 0.0000 -0.0190" mass="0.0020" rgba="0.95 0.95 0.93 1"/>
             <geom class="part" name="r_hand" type="box" size="0.0070 0.0070 0.0070" pos="0.0000 0.0000 -0.0440" mass="0.0015" rgba="0.95 0.95 0.93 1"/>
+            <site name="r_gripper" pos="0.0000 0.0000 -0.0440" euler="0.000 0.000 0.000"/>
           </body>
         </body>
       </body>
@@ -129,6 +133,12 @@
           <geom class="part" name="head_shell" type="box" size="0.0310 0.0370 0.0320" pos="0.0020 0.0000 0.0240" mass="0.0140" rgba="0.95 0.95 0.93 1"/>
           <geom class="part" name="visor" type="box" size="0.0010 0.0290 0.0130" pos="0.0340 0.0000 0.0240" mass="0.0000" rgba="0.1 0.1 0.12 1"/>
           <geom class="part" name="camera" type="box" size="0.0030 0.0125 0.0120" pos="0.0280 0.0000 0.0240" mass="0.0060" rgba="0.36 0.75 0.6 1"/>
+          <site name="camera_link" pos="0.0310 0.0000 0.0420" euler="0.000 15.000 0.000"/>
+          <site name="tof_link" pos="0.0310 0.0080 0.0450" euler="0.000 20.000 0.000"/>
+          <site name="l_mic_link" pos="0.0020 0.0385 0.0240" euler="0.000 0.000 90.000"/>
+          <site name="r_mic_link" pos="0.0020 -0.0385 0.0240" euler="0.000 0.000 -90.000"/>
+          <site name="tof_beam" pos="0.0310 0.0080 0.0450" euler="0 110.000 0"/>
+          <camera name="head_cam" pos="0.0310 0.0000 0.0420" fovy="48.8" xyaxes="0 -1 0 0.2588 0 0.9659"/>
         </body>
       </body>
     </body>
@@ -159,8 +169,9 @@
 
   <sensor>
     <framequat name="imu_quat" objtype="body" objname="base"/>
-    <gyro name="imu_gyro" site="imu"/>
-    <accelerometer name="imu_acc" site="imu"/>
+    <gyro name="imu_gyro" site="imu_link"/>
+    <accelerometer name="imu_acc" site="imu_link"/>
+    <rangefinder name="tof" site="tof_beam" cutoff="2.0"/>
     <subtreecom name="com" body="base"/>
     <touch name="l_fsr_toe" site="l_fsr_toe"/>
     <touch name="l_fsr_heel" site="l_fsr_heel"/>
