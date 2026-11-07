@@ -2,7 +2,7 @@
 # ==============================================================================
 # setup_ubuntu.sh — Ubuntu 24.04 (Noble) Environment Setup for Synapse Humanoid
 #
-# Configures ROS 2 Jazzy, build tools, real-time control, and AI perception
+# Configures ROS 2 Jazzy, Gazebo Harmonic (ros_gz), build tools, real-time control, and AI perception
 # dependencies. Usable on native Ubuntu 24.04 LTS or inside OrbStack / Docker.
 # ==============================================================================
 
@@ -52,7 +52,7 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-a
 sudo apt-get update
 
 # ── 4. Install Core Packages & Dependencies ───────────────────────────────────
-step "4. Installing ROS 2 Jazzy Desktop, ros2_control, and Build Tools"
+step "4. Installing ROS 2 Jazzy Desktop, ros2_control, Gazebo Harmonic and Build Tools"
 sudo apt-get install -y \
   ros-jazzy-desktop \
   ros-jazzy-ros2-control \
@@ -68,6 +68,8 @@ sudo apt-get install -y \
   ros-jazzy-xacro \
   ros-jazzy-rviz2 \
   ros-jazzy-foxglove-bridge \
+  ros-jazzy-ros-gz \
+  ros-jazzy-gz-ros2-control \
   build-essential \
   cmake \
   git \

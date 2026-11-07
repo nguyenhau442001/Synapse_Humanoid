@@ -3,7 +3,7 @@
 # setup_orbstack.sh — Automated OrbStack + Ubuntu 24.04 Environment Setup
 #
 # Sets up a lightweight, near-native Ubuntu 24.04 (Noble) Linux instance with
-# ROS 2 Jazzy, ros2_control, and AI Perception tools on macOS (Apple Silicon).
+# ROS 2 Jazzy, Gazebo Harmonic, ros2_control, and AI Perception tools on macOS (Apple Silicon).
 # Replaces heavy VMs like UTM with instant startup, zero battery drain, and
 # full bidirectional filesystem integration.
 #
@@ -137,10 +137,11 @@ echo ""
 echo -e "  2. ${BLUE}Build directly from your macOS terminal:${RESET}"
 echo -e "     orb -m $ORB_MACHINE_NAME bash -c \"source /opt/ros/jazzy/setup.bash && cd \$PWD && colcon build --symlink-install\""
 echo ""
-echo -e "  3. ${BLUE}High-Performance 3D Visualization via Foxglove Studio (Native macOS):${RESET}"
-echo -e "     - In Terminal (OrbStack):"
-echo -e "       orb -m $ORB_MACHINE_NAME bash -c \"source /opt/ros/jazzy/setup.bash && source \$PWD/install/setup.bash && ros2 launch humanoid_description foxglove.launch.py\""
-echo -e "     - On macOS: Open 'Foxglove Studio' -> Open connection -> 'ws://localhost:8765' -> Connect"
+echo -e "  3. ${BLUE}Mico in Gazebo, viewed in Foxglove on macOS:${RESET}"
+echo -e "     - In Terminal (OrbStack, headless Gazebo + foxglove_bridge):"
+echo -e "       orb -m $ORB_MACHINE_NAME bash -c \"source /opt/ros/jazzy/setup.bash && source \$PWD/install/setup.bash && ros2 launch humanoid_description mico_gz.launch.py gait:=true\""
+echo -e "     - On macOS: Open 'Foxglove' -> Open connection -> 'ws://localhost:8765' -> Connect"
+echo -e "       (OrbStack forwards the VM's ports to localhost)"
 echo ""
 echo -e "  4. ${BLUE}Add convenient alias to ~/.zshrc (Optional):${RESET}"
 echo -e "     alias orb-build='orb -m $ORB_MACHINE_NAME bash -c \"source /opt/ros/jazzy/setup.bash && cd \\\$PWD && colcon build --symlink-install\"'"
