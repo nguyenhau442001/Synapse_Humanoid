@@ -21,6 +21,8 @@ elbow and hip/ankle-roll housings need room, and the 2.42″ OLED plus the camer
 
 ![Skeleton details](images/skeleton_details.png)
 
+![TF frames](images/frames.png)
+
 ## Hero family
 
 | A1 · Hero | A3 · Pico | A4 · Luno | A5 · Kiko |
@@ -58,6 +60,7 @@ Pauldrons widen it to about 132 mm (A: 119) and must ride on the upper arm so sh
 | `Mico_Faces.dc.html` | Mico expression set on the OLED |
 | `Skeleton.dc.html` | v2.1 mechanical skeleton J01–J20, front / side / rear, fit check |
 | `Skeleton_Details.dc.html` | J01–J20 table, head packaging and sensor view, foot, pelvis, arm |
+| `Frames.dc.html` | TF frames (REP-103 / REP-120), sensor frames, TF tree from `humanoid.urdf` |
 | `Main.dc.html` | A1 · Hero front view, with part sizes and joint heights |
 | `A3_Pico.dc.html`, `A4_Luno.dc.html`, `A5_Kiko.dc.html` | Hero family variants |
 | `ShellB.dc.html` | Shell B (villain) armor, front and side |
