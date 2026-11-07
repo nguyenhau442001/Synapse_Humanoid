@@ -34,6 +34,10 @@ install(TARGETS joint_trajectory_bridge_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
+install(PROGRAMS scripts/mico_gait.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 install(DIRECTORY include/
   DESTINATION include
 )

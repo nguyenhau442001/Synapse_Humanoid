@@ -11,11 +11,14 @@
 
   <depend>rclcpp</depend>
   <depend>trajectory_msgs</depend>
+  <exec_depend>builtin_interfaces</exec_depend>
   <depend>sensor_msgs</depend>
   <depend>geometry_msgs</depend>
   <depend>humanoid_interfaces</depend>
   <depend>humanoid_infrastructure</depend>
 
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
   <exec_depend>controller_manager</exec_depend>
   <exec_depend>joint_state_broadcaster</exec_depend>
   <exec_depend>joint_trajectory_controller</exec_depend>
