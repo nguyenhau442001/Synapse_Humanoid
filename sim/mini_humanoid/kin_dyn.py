@@ -1,26 +1,36 @@
-"""Kinematics + dynamics tables for the 20-DoF mini humanoid (v0.5).
+"""Kinematics + dynamics tables for Mico, the 20-DoF mini humanoid. Needs only numpy.
 
-    python kin_dyn.py          # verify DH vs MuJoCo, run the gait, write tables/*.csv, print markdown
+    python kin_dyn.py          # verify DH vs the URDF, write tables/*.csv, print a summary
 
 1. DH tables (standard / distal convention):  T_i = Rz(theta_i) . Tz(d_i) . Tx(a_i) . Rx(alpha_i)
    theta_i = q_i + offset_i.  Lengths in mm, angles in degrees.
-   Each chain starts from a fixed base transform measured from the base frame, which sits
+   Each chain starts from a fixed base transform measured from base_link, which sits
    at the hip point H (between both hips, 115 mm above the floor). Frame: x fwd, y left, z up.
-2. Forward kinematics from the DH tables is checked against MuJoCo at random joint angles.
-3. Link dynamics (mass, CoM, inertia) are read from the compiled MuJoCo model.
-4. Joint loads come from the same walk + turn + wave run as demo.py, plus static gravity cases.
+2. Forward kinematics from the DH tables is checked against the URDF at random joint angles.
+3. Link dynamics (mass, CoM, inertia) are read from humanoid.urdf.
+4. Static joint loads are computed from gravity on each subtree: arms / head with the body upright, legs
+   standing on one foot (the gait's single-support pose) and in a squat (two feet, half the weight each).
+   Planned joint speed / acceleration come from the gait trajectory (mico_gait.py). Torques during the gait
+   come from Gazebo: run check_gz.py first and its tables/gz_servo_loads.csv is merged in.
 """
 import csv
+import importlib.util
 import math
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
-import mujoco
 import numpy as np
 
-import demo
 from gen_robot import SERVOS
 
-OUT = Path(__file__).parent / "tables"
+HERE = Path(__file__).parent
+_spec = importlib.util.spec_from_file_location(
+    "mico_gait", HERE.parents[1] / "src" / "humanoid_control" / "scripts" / "mico_gait.py")
+gait = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(gait)
+
+G = 9.81
+OUT = HERE / "tables"
 
 # ---------------------------------------------------------------- DH tables
 # (joint, theta offset deg, d mm, a mm, alpha deg)
@@ -85,153 +95,211 @@ def fk(chain, q):
     return pts, T
 
 
-# MuJoCo reference points for the same frames: (body, local offset in mm)
-MJ_POINTS = {
-    "l_leg": [("l_knee", (0, 0, 0)), ("l_ankle_roll", (0, 0, 0)), ("l_ankle_roll", (0, 0, -25))],
-    "r_leg": [("r_knee", (0, 0, 0)), ("r_ankle_roll", (0, 0, 0)), ("r_ankle_roll", (0, 0, -25))],
-    "l_arm": [("l_elbow", (0, 0, 0)), ("l_elbow", (0, 0, -44))],
-    "r_arm": [("r_elbow", (0, 0, 0)), ("r_elbow", (0, 0, -44))],
-    "head":  [("head_pitch", (0, 0, 0)), ("head_pitch", (28, 0, 24))],
+# ---------------------------------------------------------------- URDF model
+def _rpy(r, p, y):
+    cr, sr, cp, sp, cy, sy = math.cos(r), math.sin(r), math.cos(p), math.sin(p), math.cos(y), math.sin(y)
+    return np.array([[cy * cp, cy * sp * sr - sy * cr, cy * sp * cr + sy * sr],
+                     [sy * cp, sy * sp * sr + cy * cr, sy * sp * cr - cy * sr],
+                     [-sp, cp * sr, cp * cr]])
+
+
+def _axis_angle(axis, a):
+    x, y, z = axis
+    c, s, t = math.cos(a), math.sin(a), 1 - math.cos(a)
+    return np.array([[t * x * x + c, t * x * y - s * z, t * x * z + s * y],
+                     [t * x * y + s * z, t * y * y + c, t * y * z - s * x],
+                     [t * x * z - s * y, t * y * z + s * x, t * z * z + c]])
+
+
+def _vec(e, attr, default="0 0 0"):
+    return np.array([float(v) for v in (e.get(attr, default) if e is not None else default).split()])
+
+
+class Urdf:
+    """Just enough URDF for FK, CoM and static loads (SI units)."""
+
+    def __init__(self, path):
+        root = ET.parse(path).getroot()
+        self.links = {}
+        for ln in root.findall("link"):
+            ine = ln.find("inertial")
+            if ine is None:
+                self.links[ln.get("name")] = (0.0, np.zeros(3), np.zeros(3))
+                continue
+            i = ine.find("inertia")
+            self.links[ln.get("name")] = (float(ine.find("mass").get("value")), _vec(ine.find("origin"), "xyz"),
+                                          np.array([float(i.get(k)) for k in ("ixx", "iyy", "izz")]))
+        self.joints = {}
+        self.children = {}
+        for j in root.findall("joint"):
+            o, lim = j.find("origin"), j.find("limit")
+            T = np.eye(4)
+            T[:3, :3] = _rpy(*_vec(o, "rpy"))
+            T[:3, 3] = _vec(o, "xyz")
+            jd = dict(name=j.get("name"), type=j.get("type"), parent=j.find("parent").get("link"),
+                      child=j.find("child").get("link"), T=T, axis=_vec(j.find("axis"), "xyz", "1 0 0"),
+                      lower=float(lim.get("lower")) if lim is not None else 0.0,
+                      upper=float(lim.get("upper")) if lim is not None else 0.0,
+                      effort=float(lim.get("effort")) if lim is not None else 0.0)
+            self.joints[jd["name"]] = jd
+            self.children.setdefault(jd["parent"], []).append(jd)
+        self.movable = [j for j in self.joints.values() if j["type"] == "revolute"]
+
+    def fk(self, q, root=np.eye(4)):
+        """World transform of every link, base_link at `root`."""
+        X = {"base_link": root}
+        stack = ["base_link"]
+        while stack:
+            p = stack.pop()
+            for j in self.children.get(p, []):
+                T = X[p] @ j["T"]
+                if j["type"] == "revolute":
+                    R = np.eye(4)
+                    R[:3, :3] = _axis_angle(j["axis"], q.get(j["name"], 0.0))
+                    T = T @ R
+                X[j["child"]] = T
+                stack.append(j["child"])
+        return X
+
+    def subtree(self, link):
+        out, stack = [], [link]
+        while stack:
+            k = stack.pop()
+            out.append(k)
+            stack += [j["child"] for j in self.children.get(k, [])]
+        return out
+
+    def mass_com(self, X, links):
+        M = sum(self.links[k][0] for k in links)
+        c = sum(self.links[k][0] * (X[k] @ np.append(self.links[k][1], 1))[:3] for k in links) / M
+        return M, c
+
+
+# ---------------------------------------------------------------- DH check
+# URDF reference points for the DH frames: (link, local offset in mm)
+URDF_POINTS = {
+    "l_leg": [("l_knee_link", (0, 0, 0)), ("l_ankle_roll_link", (0, 0, 0)), ("l_ankle_roll_link", (0, 0, -25))],
+    "r_leg": [("r_knee_link", (0, 0, 0)), ("r_ankle_roll_link", (0, 0, 0)), ("r_ankle_roll_link", (0, 0, -25))],
+    "l_arm": [("l_elbow_link", (0, 0, 0)), ("l_elbow_link", (0, 0, -44))],
+    "r_arm": [("r_elbow_link", (0, 0, 0)), ("r_elbow_link", (0, 0, -44))],
+    "head":  [("head_pitch_link", (0, 0, 0)), ("head_pitch_link", (28, 0, 24))],
 }
-# which DH frame index each MuJoCo point corresponds to (frame list from fk: 0 = base->frame0)
+# which DH frame index each URDF point corresponds to (frame list from fk: 0 = base->frame0)
 DH_INDEX = {"l_leg": [3, 4, 6], "r_leg": [3, 4, 6], "l_arm": [2, 3], "r_arm": [2, 3], "head": [2, 3]}
 
 
-def verify_dh(m, n=300, seed=1):
+def verify_dh(u, n=300, seed=1):
     rng = np.random.default_rng(seed)
-    d = mujoco.MjData(m)
     worst = {}
     for _ in range(n):
-        mujoco.mj_resetData(m, d)
-        d.qpos[:3] = (0, 0, 0.115)          # base frame at the hip point, upright
-        d.qpos[3:7] = (1, 0, 0, 0)
-        q = {}
-        for j in range(1, m.njnt):
-            lo, hi = m.jnt_range[j]
-            v = rng.uniform(lo, hi)
-            d.qpos[m.jnt_qposadr[j]] = v
-            q[m.joint(j).name] = v
-        mujoco.mj_kinematics(m, d)
-        for ch, refs in MJ_POINTS.items():
+        q = {j["name"]: rng.uniform(j["lower"], j["upper"]) for j in u.movable}
+        X = u.fk(q)
+        for ch, refs in URDF_POINTS.items():
             pts, _ = fk(ch, q)
-            for (body, off), idx in zip(refs, DH_INDEX[ch]):
-                b = m.body(body).id
-                p_mj = (d.xpos[b] + d.xmat[b].reshape(3, 3) @ (np.array(off) / 1000) - [0, 0, 0.115]) * 1000
-                err = np.linalg.norm(p_mj - pts[idx])
-                worst[ch] = max(worst.get(ch, 0), err)
+            for (link, off), idx in zip(refs, DH_INDEX[ch]):
+                p = (X[link] @ np.append(np.array(off) / 1000, 1))[:3] * 1000
+                worst[ch] = max(worst.get(ch, 0), np.linalg.norm(p - pts[idx]))
     return worst
 
 
 # ---------------------------------------------------------------- dynamics
-def link_table(m):
-    rows = []
-    for b in range(1, m.nbody):
-        rows.append(dict(
-            link=m.body(b).name,
-            mass_g=m.body_mass[b] * 1000,
-            com_mm=" / ".join(f"{v:.1f}" for v in m.body_ipos[b] * 1000),
-            inertia_gmm2=" / ".join(f"{v:.0f}" for v in m.body_inertia[b] * 1e9),   # principal, kg.m2 -> g.mm2
-        ))
-    return rows
+def link_table(u):
+    return [dict(link=k, mass_g=m * 1000, com_mm=" / ".join(f"{v:.1f}" for v in c * 1000),
+                 inertia_gmm2=" / ".join(f"{v:.0f}" for v in i * 1e9))      # kg.m2 -> g.mm2
+            for k, (m, c, i) in u.links.items() if m > 0]
 
 
-def static_gravity(m):
-    """Gravity torque per joint (N.m) for worst static poses, base held upright.
-    qfrc_bias with zero velocity = gravity load carried by each joint."""
-    d = mujoco.MjData(m)
+def hanging_loads(u, X, gdir):
+    """Gravity torque (N.m) at every joint from the links beyond it, with the base held: the arm / head case."""
     out = {}
-    poses = {
-        "tay duỗi ngang trước": dict(l_shoulder_pitch=-math.pi / 2, r_shoulder_pitch=-math.pi / 2),
-        "tay dang ngang": dict(l_shoulder_roll=math.pi / 2, r_shoulder_roll=-math.pi / 2),
-        "cúi đầu 45°": dict(head_pitch=math.radians(45)),
-    }
-    for label, pose in poses.items():
-        mujoco.mj_resetData(m, d)
-        d.qpos[:3] = (0, 0, 0.115)
-        d.qpos[3:7] = (1, 0, 0, 0)
-        for j, v in pose.items():
-            d.qpos[m.jnt_qposadr[m.joint(j).id]] = v
-        mujoco.mj_forward(m, d)
-        for j in range(1, m.njnt):
-            name = m.joint(j).name
-            tau = abs(d.qfrc_bias[m.jnt_dofadr[j]])
-            if tau > out.get(name, (0, ""))[0]:
-                out[name] = (tau, label)
+    for j in u.movable:
+        M, c = u.mass_com(X, u.subtree(j["child"]))
+        p, a = X[j["child"]][:3, 3], X[j["child"]][:3, :3] @ j["axis"]
+        out[j["name"]] = abs(np.dot(a, np.cross(c - p, M * G * gdir)))
     return out
 
 
-def static_hold(m, target, settle=2.0):
-    """Ease into a pose standing on the floor (crouch 1 s, blend 1.5 s), hold it, return the
-    actuator torque at the end (N.m). Velocities are ~0, so this is the static load."""
-    d = mujoco.MjData(m)
-    mujoco.mj_resetDataKeyframe(m, d, 0)
-    ids = {m.actuator(i).name: i for i in range(m.nu)}
-    t_end = 1.0 + 1.5 + settle
-    while d.time < t_end:
-        t = d.time
-        q = demo.crouch(t) if t < 1.0 else demo.blend(demo.crouch(1.0), target, demo.smooth((t - 1.0) / 1.5))
-        for k, v in q.items():
-            d.ctrl[ids[k]] = v
-        mujoco.mj_step(m, d)
-    upright = d.qpos[2] > 0.09
-    return {m.actuator(i).name: abs(d.actuator_force[i]) for i in range(m.nu)}, upright
+def sole_frame(u, X, side):
+    """World = stance sole, flat on the floor: re-root the FK there so gravity is -z of the sole."""
+    sole = X[f"{side}_sole"]
+    return {k: np.linalg.inv(sole) @ T for k, T in X.items()}
 
 
-def static_floor_cases(m):
-    """Leg loads that only exist with the feet on the floor."""
-    single = demo.step_pose(0.5, "r", 0, 0, (0, 0), (0, 0))        # on the left foot, right foot lifted
+def standing_loads(u, q, feet):
+    """Static torque at the stance-leg joints with `feet` = {side: share of the weight} on the floor.
+    Ground reaction: vertical, share * W, under the robot CoM (x) and that sole (y). Joints outside the
+    stance legs carry their own subtree as in hanging_loads."""
+    Xw = sole_frame(u, u.fk(q), next(iter(feet)))
+    allk = list(u.links)
+    W, com = u.mass_com(Xw, allk)
+    gz = np.array([0, 0, -1.0])
+    out = hanging_loads(u, Xw, gz)
+    for side, share in feet.items():
+        cop = np.array([com[0], Xw[f"{side}_sole"][1, 3], Xw[f"{side}_sole"][2, 3]])
+        for j in u.movable:
+            if not j["name"].startswith(f"{side}_") or j["name"].split("_", 1)[1] not in LEG_JOINTS:
+                continue
+            p, a = Xw[j["child"]][:3, 3], Xw[j["child"]][:3, :3] @ j["axis"]
+            foot_side = u.subtree(j["child"])                 # links between this joint and the floor
+            Mf, cf = u.mass_com(Xw, foot_side)
+            tau = np.cross(cop - p, share * W * G * -gz) + np.cross(cf - p, Mf * G * gz)
+            out[j["name"]] = abs(np.dot(a, tau))
+    return out
+
+
+LEG_JOINTS = ("hip_yaw", "hip_roll", "hip_pitch", "knee", "ankle_pitch", "ankle_roll")
+
+
+def static_cases(u):
+    """Worst static torque per joint (N.m) and the case it comes from."""
+    hp, kn, ap = gait.leg_ik(0, 0.070)                                 # squat: hip-to-ankle 70 mm
+    single = gait.step_pose(0.5, "r", 0, 0, (0, 0), (0, 0))           # on the left foot, right foot lifted
     single.update(l_elbow=-0.4, r_elbow=-0.4)
-    hp, kn, ap = demo.leg_ik(0, 0.070)                              # squat: hip-to-ankle 70 mm
     squat = {f"{s}_{j}": a for s in "lr" for j, a in zip(("hip_pitch", "knee", "ankle_pitch"), (hp, kn, ap))}
+    cases = {
+        "arms forward": hanging_loads(u, u.fk(dict(l_shoulder_pitch=-math.pi / 2, r_shoulder_pitch=-math.pi / 2)),
+                                      np.array([0, 0, -1.0])),
+        "arms out to the side": hanging_loads(u, u.fk(dict(l_shoulder_roll=math.pi / 2,
+                                                           r_shoulder_roll=-math.pi / 2)), np.array([0, 0, -1.0])),
+        "head down 45 deg": hanging_loads(u, u.fk(dict(head_pitch=math.radians(45))), np.array([0, 0, -1.0])),
+        "one foot (left)": standing_loads(u, single, {"l": 1.0}),
+        f"squat, knee {math.degrees(kn):.0f} deg": standing_loads(u, squat, {"l": 0.5}),
+    }
     out = {}
-    for label, pose in (("đứng một chân (trái)", single), (f"ngồi xổm, gối {math.degrees(kn):.0f}°", squat)):
-        f, ok = static_hold(m, pose)
-        assert ok, f"robot fell in static case {label}"
-        for k, v in f.items():
+    for label, loads in cases.items():
+        for k, v in loads.items():
             if v > out.get(k, (0, ""))[0]:
                 out[k] = (v, label)
     return out
 
 
-def gait_stats(m):
-    d = mujoco.MjData(m)
-    mujoco.mj_resetDataKeyframe(m, d, 0)
-    ids = {m.actuator(i).name: i for i in range(m.nu)}
-    jd = {m.actuator(i).name: m.jnt_dofadr[m.actuator_trnid[i, 0]] for i in range(m.nu)}
-    peak_t = np.zeros(m.nu)
-    sq = np.zeros(m.nu)
-    peak_v = np.zeros(m.nu)
-    peak_a = np.zeros(m.nu)
-    n = 0
-    prev_v = None
-    while d.time < demo.T_END:
-        demo.controller(m, d, ids)
-        mujoco.mj_step(m, d)
-        f = np.abs(d.actuator_force)
-        v = np.array([d.qvel[jd[m.actuator(i).name]] for i in range(m.nu)])
-        if prev_v is not None:
-            peak_a = np.maximum(peak_a, np.abs(v - prev_v) / m.opt.timestep)
-        prev_v = v
-        peak_t = np.maximum(peak_t, f)
-        sq += f * f
-        peak_v = np.maximum(peak_v, np.abs(v))
-        n += 1
-    return {m.actuator(i).name: dict(peak=peak_t[i], rms=math.sqrt(sq[i] / n), vel=peak_v[i], acc=peak_a[i])
-            for i in range(m.nu)}
+def planned_motion(dt=0.002):
+    """Peak speed and acceleration of every joint along the commanded gait (kinematics only)."""
+    ts = np.arange(0, gait.T_END, dt)
+    Q = np.array([[gait.targets(t).get(j, 0.0) for j in gait.JOINTS] for t in ts])
+    v = np.gradient(Q, dt, axis=0)
+    a = np.gradient(v, dt, axis=0)
+    return {j: (np.abs(v[:, i]).max(), np.abs(a[:, i]).max()) for i, j in enumerate(gait.JOINTS)}
+
+
+def gz_loads():
+    """Gait torques measured in Gazebo by check_gz.py (p99 and RMS, N.m), if that has been run."""
+    f = OUT / "gz_servo_loads.csv"
+    if not f.exists():
+        return {}
+    with open(f, encoding="utf-8") as fh:
+        return {r["joint"]: (float(r["p99_Nm"]), float(r["rms_Nm"])) for r in csv.DictReader(fh)}
 
 
 # ---------------------------------------------------------------- main
 def main():
-    m = mujoco.MjModel.from_xml_path("humanoid.xml")
+    u = Urdf(HERE / "humanoid.urdf")
     OUT.mkdir(exist_ok=True)
-    servo_of = {}
     import gen_robot
-    for b in gen_robot.walk(gen_robot.ROBOT):
-        if b.joint:
-            servo_of[b.joint.name] = b.joint.servo
+    servo_of = {b.joint.name: b.joint.servo for b in gen_robot.walk(gen_robot.ROBOT) if b.joint}
 
     # DH
-    worst = verify_dh(m)
+    worst = verify_dh(u)
     with open(OUT / "dh_table.csv", "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(["chain", "i", "joint", "theta_i (deg)", "d_i (mm)", "a_i (mm)", "alpha_i (deg)", "servo"])
@@ -239,56 +307,51 @@ def main():
             for i, (name, off, dd, a, al) in enumerate(c["dh"], 1):
                 th = "q" if off == 0 else f"q {'+' if off > 0 else '-'} {abs(off)}"
                 w.writerow([ch, i, name, th, dd, a, al, servo_of[name]])
-    print("DH vs MuJoCo, worst position error over 300 random poses (mm):",
-          {k: round(v, 6) for k, v in worst.items()})
+    print("DH vs URDF, worst position error over 300 random poses (mm):",
+          {k: round(float(v), 6) for k, v in worst.items()})
 
     # links
-    links = link_table(m)
     with open(OUT / "links_dynamics.csv", "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow(["link", "mass (g)", "CoM x,y,z (mm, link frame)", "Ixx,Iyy,Izz principal (g.mm^2)"])
-        for r in links:
+        for r in link_table(u):
             w.writerow([r["link"], f"{r['mass_g']:.1f}", r["com_mm"], r["inertia_gmm2"]])
 
     # joints
-    stat = static_gravity(m)
-    for k, v in static_floor_cases(m).items():
-        if v[0] > stat.get(k, (0, ""))[0]:
-            stat[k] = v
-    gs = gait_stats(m)
+    stat = static_cases(u)
+    motion = planned_motion()
+    gz = gz_loads()
     rows = []
-    for j in range(1, m.njnt):
-        name = m.joint(j).name
+    for j in u.movable:
+        name = j["name"]
         sv = servo_of[name]
         stall = SERVOS[sv]["stall"]
         rated = stall / 3
         st, st_case = stat.get(name, (0.0, ""))
-        g = gs[name]
-        need = max(st, g["peak"])
-        lo, hi = np.degrees(m.jnt_range[j])
+        p99, rms = gz.get(name, (float("nan"), float("nan")))
+        need = max(st, 0.0 if math.isnan(p99) else p99)
         rows.append(dict(
-            joint=name, servo=sv, range=f"{lo:.0f}…{hi:.0f}",
-            vmax=(math.pi / 3) / SERVOS[sv]["speed"], vpeak=g["vel"], apeak=g["acc"],
-            stall_kgcm=stall / 0.0981, rated_kgcm=rated / 0.0981,
-            static_kgcm=st / 0.0981, static_case=st_case,
-            peak_kgcm=g["peak"] / 0.0981, rms_kgcm=g["rms"] / 0.0981,
-            margin=rated / need if need > 0 else float("inf"),
+            joint=name, servo=sv, range=f"{math.degrees(j['lower']):.0f}…{math.degrees(j['upper']):.0f}",
+            vmax=(math.pi / 3) / SERVOS[sv]["speed"], vpeak=motion[name][0], apeak=motion[name][1],
+            stall_kgcm=stall / 0.0981, rated_kgcm=rated / 0.0981, static_kgcm=st / 0.0981, static_case=st_case,
+            gz_kgcm=p99 / 0.0981, rms_kgcm=rms / 0.0981, margin=rated / need if need > 0 else float("inf"),
         ))
     with open(OUT / "joints_kin_dyn.csv", "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
-        w.writerow(["joint", "servo", "range (deg)", "servo max speed (rad/s)", "sim peak speed (rad/s)",
-                    "sim peak accel (rad/s^2)", "stall (kg.cm)", "rated 1/3 (kg.cm)", "static worst (kg.cm)",
-                    "static case", "sim peak (kg.cm)", "sim RMS (kg.cm)", "margin rated/need"])
+        w.writerow(["joint", "servo", "range (deg)", "servo max speed (rad/s)", "gait peak speed (rad/s)",
+                    "gait peak accel (rad/s^2)", "stall (kg.cm)", "rated 1/3 (kg.cm)", "static worst (kg.cm)",
+                    "static case", "Gazebo gait p99 (kg.cm)", "Gazebo gait RMS (kg.cm)", "margin rated/need"])
         for r in rows:
             w.writerow([r["joint"], r["servo"], r["range"], f"{r['vmax']:.1f}", f"{r['vpeak']:.2f}",
                         f"{r['apeak']:.0f}", f"{r['stall_kgcm']:.2f}", f"{r['rated_kgcm']:.2f}",
-                        f"{r['static_kgcm']:.2f}", r["static_case"], f"{r['peak_kgcm']:.2f}",
+                        f"{r['static_kgcm']:.2f}", r["static_case"], f"{r['gz_kgcm']:.2f}",
                         f"{r['rms_kgcm']:.2f}", f"{r['margin']:.2f}"])
-    print(f"wrote {OUT}/dh_table.csv, links_dynamics.csv, joints_kin_dyn.csv")
-    print(f"total mass {sum(m.body_mass) * 1000:.0f} g")
+    print(f"wrote {OUT}/dh_table.csv, links_dynamics.csv, joints_kin_dyn.csv"
+          + ("" if gz else "  (no Gazebo loads yet: run check_gz.py)"))
+    print(f"total mass {sum(m for m, _, _ in u.links.values()) * 1000:.0f} g")
     for r in rows:
-        print(f"{r['joint']:18s} {r['servo']:8s} need {max(r['static_kgcm'], r['peak_kgcm']):.2f} "
-              f"rated {r['rated_kgcm']:.2f} margin {r['margin']:.2f}  vpeak {r['vpeak']:.2f}/{r['vmax']:.1f}")
+        print(f"{r['joint']:18s} {r['servo']:6s} static {r['static_kgcm']:.2f} gz {r['gz_kgcm']:.2f} "
+              f"rated {r['rated_kgcm']:.2f} margin {r['margin']:.2f}  ({r['static_case']})")
 
 
 if __name__ == "__main__":
